@@ -20,31 +20,29 @@
       margin: 0;
     }
 
-    /* 精緻高透感玻璃擬態 */
     .hud-glass {
-      background: rgba(10, 25, 47, 0.72);
+      background: rgba(10, 25, 47, 0.76);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(125, 211, 252, 0.22);
-      box-shadow: 0 16px 40px -8px rgba(0, 10, 28, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(125, 211, 252, 0.25);
+      box-shadow: 0 16px 40px -8px rgba(0, 10, 28, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
 
     .hud-pill {
-      background: rgba(15, 34, 61, 0.78);
+      background: rgba(15, 34, 61, 0.82);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(186, 230, 253, 0.24);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      border: 1px solid rgba(186, 230, 253, 0.26);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .hud-pill:hover {
       transform: translateY(-2px);
-      border-color: rgba(251, 191, 36, 0.65);
-      box-shadow: 0 14px 30px -5px rgba(14, 165, 233, 0.35);
+      border-color: rgba(251, 191, 36, 0.75);
+      box-shadow: 0 14px 30px -5px rgba(14, 165, 233, 0.4);
     }
 
-    /* 抽屜滑出動畫 */
     .drawer-transition {
-      transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
     }
 
     ::-webkit-scrollbar {
@@ -55,15 +53,12 @@
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.4);
       border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(56, 189, 248, 0.7);
     }
 
     @keyframes subtlePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.55); }
       50% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
     }
     .chair-ring-pulse {
@@ -73,14 +68,11 @@
 </head>
 <body class="h-screen w-screen relative">
 
-  <!-- 主畫布：高質感 2.5D 海大電機學程島 -->
+  <!-- 主畫布：2.5D 海大電機學程島 -->
   <canvas id="islandCanvas" class="w-full h-full block"></canvas>
 
-  <!-- ========================================================= -->
-  <!-- 頂部極簡懸浮導覽列 (乾淨不遮擋島嶼) -->
-  <!-- ========================================================= -->
+  <!-- 頂部懸浮導覽列 -->
   <header class="fixed top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-    <!-- 左上：正版海大校徽與系所名牌 -->
     <div class="hud-glass rounded-full pl-2.5 pr-5 py-2 flex items-center gap-3 pointer-events-auto">
       <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-sky-300/80 shadow-lg bg-white flex items-center justify-center shrink-0">
         <img id="topNtouLogo" alt="NTOU Logo" class="w-full h-full object-cover" />
@@ -94,7 +86,7 @@
             互動學程島
           </span>
         </div>
-        <div class="text-[11px] text-sky-200/80 flex items-center gap-2">
+        <div class="text-[11px] text-sky-200/85 flex items-center gap-2">
           <span>113學年度必修科目表</span>
           <span>·</span>
           <a href="https://ee.ntou.edu.tw/" target="_blank" class="text-amber-300 hover:text-amber-200 hover:underline font-semibold">
@@ -104,7 +96,6 @@
       </div>
     </div>
 
-    <!-- 右上：精品功能膠囊按鈕組 -->
     <div class="flex items-center gap-2 pointer-events-auto">
       <button onclick="focusOnChair()" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-amber-300 flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
@@ -113,7 +104,7 @@
 
       <button onclick="openModal('creditModal')" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-sky-100 flex items-center gap-2">
         <span>🧮 畢業學分試算</span>
-        <span id="navCreditBadge" class="bg-sky-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">65/137</span>
+        <span id="navCreditBadge" class="bg-sky-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">68/137</span>
       </button>
 
       <button onclick="openModal('prereqModal')" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-indigo-100 hidden md:flex items-center gap-1.5">
@@ -134,25 +125,22 @@
     </div>
   </header>
 
-  <!-- ========================================================= -->
-  <!-- 左側：輕量化浮動年級與地標快速切換膠囊 (不佔空間) -->
-  <!-- ========================================================= -->
+  <!-- 左側：區域快速導覽與年級篩選 -->
   <div class="fixed left-4 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col gap-2">
-    <div class="hud-glass rounded-3xl p-2 flex flex-col gap-1.5 w-48">
+    <div class="hud-glass rounded-3xl p-2.5 flex flex-col gap-1.5 w-52">
       <div class="px-2.5 pt-1 pb-1.5 flex items-center justify-between border-b border-sky-400/15">
         <span class="text-[11px] font-extrabold tracking-wider text-sky-300">ISLAND ZONES</span>
         <button onclick="resetView()" class="text-[10px] text-amber-300 hover:underline font-semibold">全景</button>
       </div>
       <div id="quickZonesList" class="flex flex-col gap-1"></div>
 
-      <!-- 年級小人篩選 -->
-      <div class="pt-1.5 mt-1 border-t border-sky-400/15 px-1">
+      <div class="pt-2 mt-1 border-t border-sky-400/15 px-1">
         <div class="text-[10px] text-slate-300 font-semibold mb-1.5 flex justify-between">
           <span>島上學生動態</span>
           <span id="onlineStudentCount" class="text-sky-300 font-mono">12 人</span>
         </div>
         <div class="grid grid-cols-5 gap-1 text-[10px] font-bold">
-          <button onclick="setGradeFilter('ALL')" id="gf-ALL" class="py-1 rounded-lg bg-sky-400 text-slate-950">全部</button>
+          <button onclick="setGradeFilter('ALL')" id="gf-ALL" class="py-1 rounded-lg bg-sky-400 text-slate-950 font-black">全部</button>
           <button onclick="setGradeFilter('大一')" id="gf-大一" class="py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-emerald-300">大一</button>
           <button onclick="setGradeFilter('大二')" id="gf-大二" class="py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sky-300">大二</button>
           <button onclick="setGradeFilter('大三')" id="gf-大三" class="py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300">大三</button>
@@ -162,14 +150,11 @@
     </div>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- 底部中央：精緻系主任譚仕煒教授互動名片匣 (可收合、真實照片內建) -->
-  <!-- ========================================================= -->
+  <!-- 底部中央：系主任譚仕煒教授互動導覽匣 -->
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-[92vw] max-w-2xl pointer-events-auto">
-    <div class="hud-glass rounded-3xl p-3.5 sm:p-4 flex items-center gap-4 transition-all duration-300">
-      <!-- 系主任譚仕煒教授真實頭像 (100% 內建 Base64) -->
+    <div class="hud-glass rounded-3xl p-3.5 sm:p-4 flex items-center gap-4">
       <div onclick="focusOnChair()" class="relative shrink-0 cursor-pointer group">
-        <div class="w-16 h-20 sm:w-18 sm:h-22 rounded-2xl overflow-hidden border-2 border-amber-400 chair-ring-pulse shadow-xl bg-white">
+        <div class="w-16 h-20 rounded-2xl overflow-hidden border-2 border-amber-400 chair-ring-pulse shadow-xl bg-white">
           <img id="chairCardAvatar" alt="譚仕煒系主任" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
         </div>
         <span class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow whitespace-nowrap">
@@ -177,7 +162,6 @@
         </span>
       </div>
 
-      <!-- 對話內容區 -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-2 mb-1">
           <div class="flex items-center gap-2 truncate">
@@ -191,11 +175,10 @@
           </button>
         </div>
 
-        <p id="speakerText" class="text-xs sm:text-[13px] text-slate-100/95 leading-relaxed line-clamp-2 sm:line-clamp-3 mb-2">
+        <p id="speakerText" class="text-xs sm:text-[13px] text-slate-100/95 leading-relaxed mb-2">
           「誠摯歡迎加入『海洋大學電機工程學系』大家庭！點擊島上任一建築或漫步的學長姐，即可探索本系 137 畢業學分、六選三必選核心課程與六大專業研究領域。」
         </p>
 
-        <!-- 快捷主題膠囊 -->
         <div class="flex flex-wrap items-center gap-1.5">
           <button onclick="setChairSpeech('welcome')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">💬 系主任的話</button>
           <button onclick="setChairSpeech('rules')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">📋 137學分與六選三</button>
@@ -206,9 +189,7 @@
     </div>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- 右側精品滑出式課程抽屜 (點擊島上建築時優雅滑出，不擋中央島嶼) -->
-  <!-- ========================================================= -->
+  <!-- 右側精品滑出式課程抽屜 -->
   <aside id="zoneDrawer" class="fixed top-20 right-4 bottom-24 z-30 w-[90vw] max-w-md hud-glass rounded-3xl flex flex-col overflow-hidden translate-x-[120%] opacity-0 drawer-transition">
     <div class="p-4 sm:p-5 border-b border-sky-300/15 flex items-center justify-between bg-gradient-to-r from-sky-950/60 to-slate-900/60">
       <div class="flex items-center gap-3">
@@ -220,11 +201,10 @@
       </div>
       <button onclick="closeZoneDrawer()" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-rose-500 text-slate-300 hover:text-white font-bold text-sm transition">✕</button>
     </div>
-
     <div id="drawerContent" class="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1"></div>
   </aside>
 
-  <!-- 右下角：極簡縮放控制膠囊 -->
+  <!-- 右下角：縮放與操作控制膠囊 -->
   <div class="fixed right-4 bottom-4 z-20 hidden sm:flex items-center gap-1.5 hud-glass rounded-full px-3 py-1.5">
     <span class="text-[11px] text-sky-300 font-semibold mr-1">WASD 移動 / 滾輪縮放</span>
     <button onclick="adjustZoom(1.15)" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-xs font-black transition">+</button>
@@ -232,15 +212,13 @@
     <button onclick="adjustZoom(0.86)" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-xs font-black transition">−</button>
   </div>
 
-  <!-- ========================================================= -->
   <!-- 彈窗 1：113學年度 137 畢業學分互動試算器 -->
-  <!-- ========================================================= -->
   <div id="creditModal" class="fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="hud-glass rounded-3xl max-w-5xl w-full max-h-[88vh] flex flex-col overflow-hidden">
       <div class="p-5 border-b border-sky-300/15 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 class="text-lg sm:text-xl font-black text-white">🧮 國立臺灣海洋大學電機工程學系 · 137 畢業學分互動試算器</h3>
-          <p class="text-xs text-sky-200/80">113 學年度入學適用（含共同教育 28 學分、系訂專業必修 67 學分、六選三必選修 15 學分、專業選修 27 學分）</p>
+          <p class="text-xs text-sky-200/80">113 學年度入學適用（共同教育 28 學分、系訂專業必修 67 學分、六選三必選修 15 學分、專業選修 27 學分）</p>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="selectAllCredits()" class="px-3 py-1.5 rounded-full bg-sky-400/20 hover:bg-sky-400/35 border border-sky-300/40 text-sky-200 text-xs font-bold transition">一鍵勾選全部</button>
@@ -249,7 +227,6 @@
         </div>
       </div>
 
-      <!-- 進度統計列 -->
       <div class="p-4 bg-slate-950/60 border-b border-sky-300/15 grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
           <div class="text-[11px] text-slate-400">共同教育課程</div>
@@ -277,15 +254,13 @@
     </div>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- 彈窗 2：必修與核心課程關聯圖 (互動點亮先修鏈) -->
-  <!-- ========================================================= -->
+  <!-- 彈窗 2：必修與核心課程關聯圖 -->
   <div id="prereqModal" class="fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="hud-glass rounded-3xl max-w-6xl w-full max-h-[88vh] flex flex-col overflow-hidden">
       <div class="p-5 border-b border-sky-300/15 flex items-center justify-between">
         <div>
-          <h3 class="text-lg sm:text-xl font-black text-white">🕸️ 電機系大學部必修與核心課程關聯圖（互動式先修追蹤）</h3>
-          <p class="text-xs text-sky-200/80">點擊下方任一核心科目或組別，立即點亮「先修基礎 ➔ 六選三核心 ➔ 六大專業領域」完整路徑</p>
+          <h3 class="text-lg sm:text-xl font-black text-white">🕸️ 電機系大學部必修與核心課程關聯圖（先修與六大領域路徑）</h3>
+          <p class="text-xs text-sky-200/80">整合自系上必修與核心課程關聯圖：從大一基礎、大二三電一工到六選三核心與六大專業領域</p>
         </div>
         <button onclick="closeModal('prereqModal')" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-rose-500 text-white font-bold">✕</button>
       </div>
@@ -293,9 +268,7 @@
     </div>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- 彈窗 3：海大電機系所簡介、系主任的話與修業規定 -->
-  <!-- ========================================================= -->
+  <!-- 彈窗 3：海大電機系所簡介 -->
   <div id="deptModal" class="fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="hud-glass rounded-3xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden">
       <div class="p-5 border-b border-sky-300/15 flex items-center justify-between">
@@ -332,7 +305,7 @@
 
   <script>
     /*************************************************************************
-     * 1. 內嵌真實圖片資源 (您上傳的譚仕煒系主任照片 + 正版海大三道白浪校徽)
+     * 1. 內嵌真實圖片資源 (譚仕煒系主任照片 + 正版海大三道白浪校徽)
      *************************************************************************/
     const CHAIR_PHOTO_B64 = 'data:image/webp;base64,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';
 
@@ -340,7 +313,6 @@
 
     const NTOU_CURSOR_PNG = 'data:image/png;base64,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';
 
-    // 將 Base64 圖片綁定到 DOM 與 Canvas Image
     document.getElementById('topNtouLogo').src = NTOU_LOGO_B64;
     document.getElementById('modalNtouLogo').src = NTOU_LOGO_B64;
     document.getElementById('chairCardAvatar').src = CHAIR_PHOTO_B64;
@@ -352,7 +324,6 @@
     const ntouLogoImg = new Image();
     ntouLogoImg.src = NTOU_LOGO_B64;
 
-    // 設定正版海大校徽滑鼠游標
     let logoCursorEnabled = true;
     function applyCustomCursorStyle() {
       if (logoCursorEnabled) {
@@ -530,37 +501,37 @@
     let speechIdx = 0;
 
     /*************************************************************************
-     * 3. 平滑無抽動的島上學生 NPC (採用 Waypoint 緩動與休息計時器，徹底解決抽動)
+     * 3. 平滑無抽動的島上學生 NPC (Waypoint 緩動與定點休息)
      *************************************************************************/
     const STUDENTS = [
-      { id: 's1', name: '大一阿海', grade: '大一', color: '#10b981', homeX: -360, homeY: 165, bubble: '邏輯設計實驗用 Verilog 跑通了！', talk: '大一上就有程式設計實習跟交換電路與邏輯設計實驗，動手實作數位電路超有成就感！' },
-      { id: 's2', name: '大一婷婷', grade: '大一', color: '#10b981', homeX: -310, homeY: 115, bubble: '一下有電路學(一)跟微處理機實驗', talk: '必修科目表規定「電路學一下、二上需依序修習」，而且大一還有必修人工智慧概論與海洋科學概論喔！' },
-      { id: 's3', name: '大一冠宇', grade: '大一', color: '#10b981', homeX: -415, homeY: 120, bubble: '英檢中高級可以抵免大一英文！', talk: '全民英檢中高級初試通過可抵免大一英文 2 學分，複試通過可抵免 4 學分，記得先看必修科目表備註！' },
+      { id: 's1', name: '大一阿海', grade: '大一', color: '#10b981', homeX: -360, homeY: 175, bubble: '邏輯設計實驗用 Verilog 跑通了！', talk: '大一上就有程式設計實習跟交換電路與邏輯設計實驗，動手實作數位電路超有成就感！' },
+      { id: 's2', name: '大一婷婷', grade: '大一', color: '#10b981', homeX: -300, homeY: 115, bubble: '一下有電路學(一)跟微處理機實驗', talk: '必修科目表規定「電路學一下、二上需依序修習」，而且大一還有必修人工智慧概論與海洋科學概論喔！' },
+      { id: 's3', name: '大一冠宇', grade: '大一', color: '#10b981', homeX: -420, homeY: 120, bubble: '英檢中高級可以抵免大一英文！', talk: '全民英檢中高級初試通過可抵免大一英文 2 學分，複試通過可抵免 4 學分，記得先看必修科目表備註！' },
 
-      { id: 's4', name: '大二宗翰', grade: '大二', color: '#0ea5e9', homeX: -225, homeY: -115, bubble: '二上三電一工＋線代真的超充實⚡', talk: '大二同時修電路學(二)、電子學(一)、電磁學、工數(Ⅱ)跟線性代數，把整個電機系的底子打得超穩！' },
-      { id: 's5', name: '大二雅筑', grade: '大二', color: '#0ea5e9', homeX: -165, homeY: -175, bubble: '二下訊號與系統配機率學！', talk: '想走通訊與訊號處理組的話，二下的「機率學」與「訊號與系統」絕對要認真修！' },
-      { id: 's6', name: '大二柏叡', grade: '大二', color: '#0ea5e9', homeX: -265, homeY: -165, bubble: '準備大二下開始修六選三核心課～', talk: '六選三核心課從大二下到大三下每學期排 3 學分，我打算選「資料結構」、「自動控制」跟「通訊工程」！' },
+      { id: 's4', name: '大二宗翰', grade: '大二', color: '#0ea5e9', homeX: -225, homeY: -105, bubble: '二上三電一工＋線代真的超充實⚡', talk: '大二同時修電路學(二)、電子學(一)、電磁學、工數(Ⅱ)跟線性代數，把整個電機系的底子打得超穩！' },
+      { id: 's5', name: '大二雅筑', grade: '大二', color: '#0ea5e9', homeX: -160, homeY: -175, bubble: '二下訊號與系統配機率學！', talk: '想走通訊與訊號處理組的話，二下的「機率學」與「訊號與系統」絕對要認真修！' },
+      { id: 's6', name: '大二柏叡', grade: '大二', color: '#0ea5e9', homeX: -270, homeY: -165, bubble: '準備大二下開始修六選三核心課～', talk: '六選三核心課從大二下到大三下每學期排 3 學分，我打算選「資料結構」、「自動控制」跟「通訊工程」！' },
 
-      { id: 's7', name: '大三哲偉', grade: '大三', color: '#f59e0b', homeX: 215, homeY: -115, bubble: '半導體物理配譚主任的光電課超讚', talk: '修完六選三的「半導體物理」再聽譚仕煒主任的光電與半導體元件課，對固態電子領域完全貫通！' },
-      { id: 's8', name: '大三品妤', grade: '大三', color: '#f59e0b', homeX: 365, homeY: 160, bubble: '三下進實驗室做專題研究(Ⅰ)🔬', talk: '大三上修完電子學(三)，大三下就有必修「專題研究(Ⅰ)」(2學分)，正式進入指導教授實驗室做研究！' },
-      { id: 's9', name: '大三宇軒', grade: '大三', color: '#f59e0b', homeX: 255, homeY: -175, bubble: '日文最多4學分可算系訂專業選修！', talk: '必修科目表有一個超實用規定：「日文」(最多 4 學分) 可以作為電機系訂專業選修課程認列喔！' },
+      { id: 's7', name: '大三哲偉', grade: '大三', color: '#f59e0b', homeX: 215, homeY: -105, bubble: '半導體物理配譚主任的光電課超讚', talk: '修完六選三的「半導體物理」再聽譚仕煒主任的光電與半導體元件課，對固態電子領域完全貫通！' },
+      { id: 's8', name: '大三品妤', grade: '大三', color: '#f59e0b', homeX: 365, homeY: 165, bubble: '三下進實驗室做專題研究(Ⅰ)🔬', talk: '大三上修完電子學(三)，大三下就有必修「專題研究(Ⅰ)」(2學分)，正式進入指導教授實驗室做研究！' },
+      { id: 's9', name: '大三宇軒', grade: '大三', color: '#f59e0b', homeX: 260, homeY: -175, bubble: '日文最多4學分可算系訂專業選修！', talk: '必修科目表有一個超實用規定：「日文」(最多 4 學分) 可以作為電機系訂專業選修課程認列喔！' },
 
-      { id: 's10', name: '大四學長阿育', grade: '大四', color: '#c084fc', homeX: 165, homeY: 265, bubble: '專題研究(Ⅱ)模擬與硬體實測收斂🚀', talk: '大四上完成「專題研究(Ⅱ)」成果發表，搭配 27 學分專業選修，推甄研究所或進科技業都超有競爭力！' },
-      { id: 's11', name: '大四學姐筱涵', grade: '大四', color: '#c084fc', homeX: 115, homeY: 215, bubble: '137 畢業學分達成！準備畢業🎓', talk: '提醒學弟妹：必選修 15 學分包含「6選3核心課(9學分)」加上「2門對應領域指定課程(6學分)」喔！' },
-      { id: 's12', name: '大四學姐芷若', grade: '大四', color: '#c084fc', homeX: -145, homeY: 265, bubble: '博雅記得修滿跨域永續至少2學分🌊', talk: '14 學分的博雅課程涵蓋四大子領域，其中「跨域永續」至少要修 2 學分，各領域至多認列 4 學分！' }
+      { id: 's10', name: '大四學長阿育', grade: '大四', color: '#c084fc', homeX: 165, homeY: 270, bubble: '專題研究(Ⅱ)模擬與硬體實測收斂🚀', talk: '大四上完成「專題研究(Ⅱ)」成果發表，搭配 27 學分專業選修，推甄研究所或進科技業都超有競爭力！' },
+      { id: 's11', name: '大四學姐筱涵', grade: '大四', color: '#c084fc', homeX: 105, homeY: 215, bubble: '137 畢業學分達成！準備畢業🎓', talk: '提醒學弟妹：必選修 15 學分包含「6選3核心課(9學分)」加上「2門對應領域指定課程(6學分)」喔！' },
+      { id: 's12', name: '大四學姐芷若', grade: '大四', color: '#c084fc', homeX: -145, homeY: 270, bubble: '博雅記得修滿跨域永續至少2學分🌊', talk: '14 學分的博雅課程涵蓋四大子領域，其中「跨域永續」至少要修 2 學分，各領域至多認列 4 學分！' }
     ].map((s, idx) => ({
       ...s,
       x: s.homeX,
       y: s.homeY,
-      targetX: s.homeX + Math.cos(idx) * 28,
-      targetY: s.homeY + Math.sin(idx) * 20,
+      targetX: s.homeX + Math.cos(idx) * 24,
+      targetY: s.homeY + Math.sin(idx) * 18,
       waitTimer: idx * 35,
       stepPhase: idx * 1.3,
       isMoving: false
     }));
 
     /*************************************************************************
-     * 4. 2.5D 旗艦視覺渲染與驚艷互動特效引擎 (水波漣漪、能量光流、無抽動動畫)
+     * 4. 2.5D 島嶼渲染引擎
      *************************************************************************/
     const canvas = document.getElementById('islandCanvas');
     const ctx = canvas.getContext('2d');
@@ -576,7 +547,6 @@
     let activeZoneId = null;
     let hoveredObj = null;
 
-    // 玩家角色
     const player = {
       x: -55,
       y: 75,
@@ -586,21 +556,18 @@
       isMoving: false
     };
 
-    // 中央系主任 NPC
     const chairNPC = {
       x: 0,
       y: -10,
       radius: 46
     };
 
-    // 互動特效：點擊水波漣漪 & 懸浮微光粒子
     const ripples = [];
     const sparkles = Array.from({ length: 28 }, () => ({
       x: (Math.random() - 0.5) * 1200,
       y: (Math.random() - 0.5) * 700,
       size: 1.5 + Math.random() * 2.5,
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.015 + Math.random() * 0.02
+      phase: Math.random() * Math.PI * 2
     }));
 
     function resizeCanvas() {
@@ -621,12 +588,10 @@
       };
     }
 
-    // 鍵盤控制
     const keys = {};
     window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
     window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-    // 滑鼠互動
     canvas.addEventListener('mousedown', e => {
       isDragging = true;
       dragMoved = false;
@@ -695,10 +660,8 @@
     }
 
     function onIslandClick(wx, wy) {
-      // 產生驚艷的點擊波紋特效
       ripples.push({ x: wx, y: wy, r: 4, maxR: 58, alpha: 0.9, color: '#38bdf8' });
 
-      // 移動玩家角色
       player.targetX = Math.max(-520, Math.min(520, wx));
       player.targetY = Math.max(-260, Math.min(290, wy));
 
@@ -738,12 +701,10 @@
     }
 
     function updateSimulation() {
-      // 鏡頭絲滑阻尼插值 (Smooth Camera Damping)
       camera.x += (camera.targetX - camera.x) * 0.12;
       camera.y += (camera.targetY - camera.y) * 0.12;
       camera.zoom += (camera.targetZoom - camera.zoom) * 0.12;
 
-      // 玩家移動更新
       let kdx = 0, kdy = 0;
       if (keys['w'] || keys['arrowup']) kdy -= 3.4;
       if (keys['s'] || keys['arrowdown']) kdy += 3.4;
@@ -769,30 +730,26 @@
         }
       }
 
-      // 學生 NPC 平滑漫步與定點休息 (完全消除抽動!)
       for (const s of STUDENTS) {
         const dist = Math.hypot(s.targetX - s.x, s.targetY - s.y);
         if (dist > 1.8) {
-          // 緩速平滑移動
           s.x += ((s.targetX - s.x) / dist) * 0.65;
           s.y += ((s.targetY - s.y) / dist) * 0.65;
           s.isMoving = true;
           s.stepPhase += 0.12;
         } else {
-          // 抵達定點後安靜休息，不抽動
           s.isMoving = false;
           s.waitTimer++;
           if (s.waitTimer > 180) {
             s.waitTimer = 0;
             const angle = Math.random() * Math.PI * 2;
-            const rad = 18 + Math.random() * 28;
+            const rad = 16 + Math.random() * 24;
             s.targetX = s.homeX + Math.cos(angle) * rad;
             s.targetY = s.homeY + Math.sin(angle) * (rad * 0.7);
           }
         }
       }
 
-      // 更新水波漣漪
       for (let i = ripples.length - 1; i >= 0; i--) {
         const rp = ripples[i];
         rp.r += (rp.maxR - rp.r) * 0.08;
@@ -805,7 +762,6 @@
       const W = window.innerWidth;
       const H = window.innerHeight;
 
-      // 1. 漸層深邃海洋背景
       const oceanGrad = ctx.createRadialGradient(W * 0.5, H * 0.48, 60, W * 0.5, H * 0.5, Math.max(W, H) * 0.85);
       if (isNight) {
         oceanGrad.addColorStop(0, '#0a2239');
@@ -824,33 +780,23 @@
       ctx.scale(camera.zoom, camera.zoom);
       ctx.translate(-camera.x, -camera.y);
 
-      // 2. 海洋環境細節（柔和水紋、微光粒子、遠方基隆嶼與巡航船）
       drawOceanAmbience();
-
-      // 3. 精緻多層次立體海島地形 (淺灘珊瑚礁 ➔ 黃金沙灘 ➔ 翠綠科技島)
       drawLayeredIsland();
-
-      // 4. 發光黃金能量電路網 (連接系主任廣場與六大建築)
       drawEnergyCircuitNetwork();
 
-      // 5. 繪製六大 2.5D 立體學程建築
       for (const zone of ISLAND_ZONES) {
         drawIsometricBuilding(zone);
       }
 
-      // 6. 繪製中央廣場「系主任 譚仕煒教授」旗艦頭像地標
       drawChairCenterpiece();
 
-      // 7. 繪製大一～大四學生小人
       for (const s of STUDENTS) {
         if (gradeFilter !== 'ALL' && s.grade !== gradeFilter) continue;
         drawSmoothStudent(s);
       }
 
-      // 8. 繪製玩家角色
       drawPlayerCharacter();
 
-      // 9. 繪製互動點擊波紋
       for (const rp of ripples) {
         ctx.save();
         ctx.strokeStyle = rp.color;
@@ -867,7 +813,6 @@
 
     function drawOceanAmbience() {
       ctx.save();
-      // 海面星光/陽光微粒
       for (const sp of sparkles) {
         const a = 0.25 + (Math.sin(timeTick * 2 + sp.phase) + 1) * 0.25;
         ctx.fillStyle = isNight ? `rgba(125, 211, 252, ${a})` : `rgba(255, 255, 255, ${a})`;
@@ -876,7 +821,6 @@
         ctx.fill();
       }
 
-      // 遠方基隆嶼與帆船
       ctx.fillStyle = isNight ? 'rgba(15, 23, 42, 0.7)' : 'rgba(7, 89, 133, 0.45)';
       ctx.beginPath();
       ctx.moveTo(-660, -310);
@@ -884,7 +828,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // 環島航行的海大實習船
       const shipAngle = timeTick * 0.12;
       const sx = Math.cos(shipAngle) * 650;
       const sy = Math.sin(shipAngle) * 375;
@@ -912,26 +855,26 @@
     function drawLayeredIsland() {
       ctx.save();
 
-      // 第一層：蒂芬妮藍淺灘珊瑚海灣光暈
-      constlagoonPulse = Math.sin(timeTick * 1.2) * 5;
-      ctx.fillStyle = isNight ? 'rgba(14, 165, 233, 0.14)' : 'rgba(125, 211, 252, 0.42)';
+      // 修正：原本少空白的變數宣告
+      const lagoonPulse = Math.sin(timeTick * 1.2) * 5;
+      ctx.fillStyle = isNight ? 'rgba(14, 165, 233, 0.16)' : 'rgba(125, 211, 252, 0.45)';
       ctx.beginPath();
       ctx.ellipse(0, 22, 595 + lagoonPulse, 340 + lagoonPulse * 0.6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 第二層：島嶼立體岩岸底座厚度 (3D 厚度感)
+      // 3D 岩岸立體底座
       ctx.fillStyle = isNight ? '#1e293b' : '#b45309';
       ctx.beginPath();
       ctx.ellipse(0, 38, 555, 312, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 第三層：溫暖黃金海岸沙灘
+      // 黃金海岸沙灘
       ctx.fillStyle = isNight ? '#451a03' : '#fde68a';
       ctx.beginPath();
       ctx.ellipse(0, 22, 555, 310, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 第四層：翠綠立體草地島嶼主體
+      // 翠綠立體草地島嶼主體
       const grassGrad = ctx.createRadialGradient(-60, -40, 40, 0, 20, 540);
       if (isNight) {
         grassGrad.addColorStop(0, '#065f46');
@@ -947,8 +890,8 @@
       ctx.ellipse(0, 18, 520, 286, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 中央「海大電機廣場」同心圓大理石舞台
-      ctx.fillStyle = isNight ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.92)';
+      // 中央「海大電機廣場」圓環舞台
+      ctx.fillStyle = isNight ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.94)';
       ctx.beginPath();
       ctx.ellipse(0, 0, 130, 88, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -956,10 +899,10 @@
       ctx.strokeStyle = isNight ? '#38bdf8' : '#0284c7';
       ctx.stroke();
 
-      // 在中央廣場地板繪製淡雅的海大校徽浮水印
+      // 中央廣場正版海大校徽浮水印
       if (ntouLogoImg.complete && ntouLogoImg.naturalWidth > 0) {
         ctx.save();
-        ctx.globalAlpha = isNight ? 0.14 : 0.12;
+        ctx.globalAlpha = isNight ? 0.16 : 0.14;
         ctx.beginPath();
         ctx.arc(0, 5, 58, 0, Math.PI * 2);
         ctx.clip();
@@ -975,29 +918,26 @@
       for (const z of ISLAND_ZONES) {
         const isHighlighted = (hoveredObj && hoveredObj.type === 'zone' && hoveredObj.data.id === z.id) || activeZoneId === z.id;
 
-        // 道路底線
         ctx.strokeStyle = isHighlighted
           ? '#fbbf24'
-          : (isNight ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.72)');
+          : (isNight ? 'rgba(56, 189, 248, 0.38)' : 'rgba(255, 255, 255, 0.75)');
         ctx.lineWidth = isHighlighted ? 7 : 5;
         ctx.lineCap = 'round';
 
         ctx.beginPath();
         ctx.moveTo(chairNPC.x, chairNPC.y + 10);
-        // 優雅微弧度曲線連接各館
         const cx = (chairNPC.x + z.x) * 0.5;
         const cy = (chairNPC.y + z.y) * 0.5 - 18;
         ctx.quadraticCurveTo(cx, cy, z.x, z.y + 15);
         ctx.stroke();
 
-        // 雙向流動的光子能量球
         const t = (timeTick * (isHighlighted ? 0.8 : 0.45)) % 1;
         const qx = (1 - t) * (1 - t) * chairNPC.x + 2 * (1 - t) * t * cx + t * t * z.x;
         const qy = (1 - t) * (1 - t) * (chairNPC.y + 10) + 2 * (1 - t) * t * cy + t * t * (z.y + 15);
 
         ctx.fillStyle = isHighlighted ? '#fde047' : z.accent;
         ctx.beginPath();
-        ctx.arc(qx, qy, isHighlighted ? 6 : 4, 0, Math.PI * 2);
+        ctx.arc(qx, qy, isHighlighted ? 6 : 4.5, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
@@ -1011,13 +951,11 @@
       const isSelected = activeZoneId === z.id;
       const liftY = (isHovered || isSelected) ? -7 : 0;
 
-      // 建築地面柔和投影
-      ctx.fillStyle = 'rgba(0, 15, 35, 0.26)';
+      ctx.fillStyle = 'rgba(0, 15, 35, 0.28)';
       ctx.beginPath();
       ctx.ellipse(0, 32, 68, 30, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 懸停或選中時的黃金感應光圈
       if (isHovered || isSelected) {
         ctx.strokeStyle = '#fbbf24';
         ctx.lineWidth = 3;
@@ -1028,12 +966,10 @@
 
       ctx.translate(0, liftY);
 
-      // 建築 3D 基座層
       ctx.fillStyle = isNight ? '#0f172a' : '#cbd5e1';
       roundRectPath(ctx, -54, -22, 108, 52, 14);
       ctx.fill();
 
-      // 建築主牆面
       ctx.fillStyle = isNight ? '#1e293b' : z.wall;
       roundRectPath(ctx, -54, -30, 108, 48, 14);
       ctx.fill();
@@ -1041,19 +977,16 @@
       ctx.strokeStyle = z.accent;
       ctx.stroke();
 
-      // 建築斜屋頂與天窗
       ctx.fillStyle = z.roof;
       roundRectPath(ctx, -60, -46, 120, 24, 11);
       ctx.fill();
 
-      // 發光科技玻璃窗列
       for (let wx = -34; wx <= 22; wx += 22) {
         ctx.fillStyle = isNight ? '#38bdf8' : '#7dd3fc';
         roundRectPath(ctx, wx, -14, 13, 15, 3);
         ctx.fill();
       }
 
-      // 屋頂立體圓形徽章
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(0, -42, 17, 0, Math.PI * 2);
@@ -1067,7 +1000,6 @@
       ctx.textBaseline = 'middle';
       ctx.fillText(z.icon, 0, -42);
 
-      // 建築下方極簡質感膠囊名牌 (不再與小人文字重疊雜亂)
       ctx.fillStyle = 'rgba(10, 25, 47, 0.92)';
       roundRectPath(ctx, -74, 32, 148, 32, 16);
       ctx.fill();
@@ -1094,8 +1026,7 @@
       const isHovered = hoveredObj && hoveredObj.type === 'chair';
       const floatOffset = Math.sin(timeTick * 1.6) * 2.5;
 
-      // 腳下發光黃金光環
-      ctx.strokeStyle = isHovered ? '#fde047' : 'rgba(251, 191, 36, 0.6)';
+      ctx.strokeStyle = isHovered ? '#fde047' : 'rgba(251, 191, 36, 0.65)';
       ctx.lineWidth = isHovered ? 3.5 : 2.5;
       ctx.beginPath();
       ctx.ellipse(0, 28, 48, 24, 0, 0, Math.PI * 2);
@@ -1103,7 +1034,6 @@
 
       ctx.translate(0, floatOffset);
 
-      // 西裝立體底座
       ctx.fillStyle = '#0f294a';
       roundRectPath(ctx, -20, 4, 40, 26, 10);
       ctx.fill();
@@ -1111,7 +1041,6 @@
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // 紅色領帶
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
       ctx.moveTo(0, 6);
@@ -1121,7 +1050,7 @@
       ctx.closePath();
       ctx.fill();
 
-      // 系主任譚仕煒教授真實大頭貼圓形獎章 (100% Base64 內嵌直出)
+      // 系主任譚仕煒教授真實頭像圓形大徽章
       ctx.save();
       ctx.beginPath();
       ctx.arc(0, -24, 34, 0, Math.PI * 2);
@@ -1135,14 +1064,12 @@
       }
       ctx.restore();
 
-      // 大頭貼外圈雙層黃金邊框
       ctx.strokeStyle = isHovered ? '#fde047' : '#f59e0b';
       ctx.lineWidth = isHovered ? 4.5 : 3.5;
       ctx.beginPath();
       ctx.arc(0, -24, 34, 0, Math.PI * 2);
       ctx.stroke();
 
-      // 上方精緻皇冠膠囊提示
       ctx.fillStyle = '#fbbf24';
       roundRectPath(ctx, -66, -80, 132, 20, 10);
       ctx.fill();
@@ -1151,7 +1078,6 @@
       ctx.textAlign = 'center';
       ctx.fillText('👑 點擊系主任導覽學程', 0, -66);
 
-      // 下方系主任名牌
       ctx.fillStyle = 'rgba(10, 25, 47, 0.95)';
       roundRectPath(ctx, -68, 32, 136, 22, 11);
       ctx.fill();
@@ -1171,10 +1097,8 @@
       ctx.translate(s.x, s.y);
 
       const isHovered = hoveredObj && hoveredObj.type === 'student' && hoveredObj.data.id === s.id;
-      // 只有在移動時才有輕微步伐韻律，停下時完全穩定不抽動
       const bob = s.isMoving ? Math.abs(Math.sin(s.stepPhase)) * 3 : 0;
 
-      // 柔和地面陰影
       ctx.fillStyle = 'rgba(0, 10, 25, 0.24)';
       ctx.beginPath();
       ctx.ellipse(0, 13, 10, 5, 0, 0, Math.PI * 2);
@@ -1182,7 +1106,6 @@
 
       ctx.translate(0, -bob);
 
-      // 小人圓潤身體
       ctx.fillStyle = s.color;
       roundRectPath(ctx, -9, -3, 18, 16, 6);
       ctx.fill();
@@ -1190,21 +1113,18 @@
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // 小人頭部
       ctx.fillStyle = '#fde68a';
       ctx.beginPath();
       ctx.arc(0, -10, 8, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // 微笑雙眼
       ctx.fillStyle = '#0f172a';
       ctx.beginPath();
       ctx.arc(-2.6, -10.5, 1.2, 0, Math.PI * 2);
       ctx.arc(2.6, -10.5, 1.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // 腳下簡潔姓名牌
       ctx.font = '700 10px "Noto Sans TC"';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#f8fafc';
@@ -1213,7 +1133,6 @@
       ctx.fillText(s.name, 0, 25);
       ctx.shadowBlur = 0;
 
-      // 對話氣泡：僅在滑鼠懸停或玩家靠近時優雅浮現 (解決全島氣泡閃爍與雜亂問題)
       const nearPlayer = Math.hypot(player.x - s.x, player.y - s.y) < 85;
       if (isHovered || nearPlayer) {
         ctx.font = '700 10.5px "Noto Sans TC"';
@@ -1238,7 +1157,6 @@
 
       const bob = player.isMoving ? Math.abs(Math.sin(player.stepPhase)) * 3.5 : 0;
 
-      // 玩家專屬水藍導航光圈
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -1260,7 +1178,6 @@
       ctx.fill();
       ctx.stroke();
 
-      // 海大學士帽
       ctx.fillStyle = '#0f172a';
       ctx.beginPath();
       ctx.moveTo(0, -25);
@@ -1303,7 +1220,6 @@
       if (!z) return;
       activeZoneId = z.id;
 
-      // 鏡頭平滑聚焦至該建築（稍微偏左讓右側抽屜不遮擋建築本體）
       camera.targetX = z.x + 110;
       camera.targetY = z.y;
       camera.targetZoom = 1.12;
@@ -1312,12 +1228,10 @@
 
       ripples.push({ x: z.x, y: z.y, r: 10, maxR: 90, alpha: 1, color: z.accent });
 
-      // 更新系主任同步解說
       document.getElementById('speakerTitle').textContent = `譚仕煒 教授 ➔ 導覽【${z.name}】`;
       document.getElementById('speakerSubtitle').textContent = z.subtitle;
       document.getElementById('speakerText').textContent = `「${z.desc}」右側已為您展開本區所有必修與必選修課號明細！`;
 
-      // 填入右側精品抽屜
       document.getElementById('drawerIcon').textContent = z.icon;
       document.getElementById('drawerTitle').textContent = z.name;
       document.getElementById('drawerSubtitle').textContent = z.subtitle;
@@ -1397,7 +1311,7 @@
     }
 
     /*************************************************************************
-     * 6. 113學年度 137 畢業學分試算器資料與互動
+     * 6. 113學年度 137 畢業學分試算器
      *************************************************************************/
     const CREDIT_GROUPS = [
       {
@@ -1550,7 +1464,6 @@
       m.classList.remove('flex');
     }
 
-    // 啟動初始化
     renderQuickZones();
     renderCredits();
     renderPrereqAndDept();
