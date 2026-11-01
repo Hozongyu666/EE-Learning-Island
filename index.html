@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>國立臺灣海洋大學電機工程學系 | 互動式學程島 NTOU EE Heart Island</title>
+  <title>國立臺灣海洋大學電機工程學系 | 3D 互動式學程與師資實驗室島</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -15,39 +15,76 @@
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
       overflow: hidden;
-      background: #041424;
+      background: #030d1a;
       color: #f8fafc;
       margin: 0;
     }
 
+    /* 啟動自訂校徽游標時隱藏原生鼠標，改由高質感 100% 可見的海大校徽游標層渲染 */
+    body.ntou-cursor-on,
+    body.ntou-cursor-on * {
+      cursor: none !important;
+    }
+
+    #customCursorFollower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 42px;
+      height: 42px;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate3d(-100px, -100px, 0);
+      transition: transform 0.02s linear;
+      will-change: transform;
+    }
+    body:not(.ntou-cursor-on) #customCursorFollower {
+      display: none !important;
+    }
+
+    #customCursorInner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+      filter: drop-shadow(0 4px 10px rgba(2, 132, 199, 0.65));
+    }
+    #customCursorFollower.cursor-hover #customCursorInner {
+      transform: scale(1.22) rotate(-6deg);
+      filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.95));
+    }
+    #customCursorFollower.cursor-down #customCursorInner {
+      transform: scale(0.88);
+    }
+
+    /* 高透感 3D 玻璃擬態面板 */
     .hud-glass {
-      background: rgba(10, 25, 47, 0.76);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(125, 211, 252, 0.25);
-      box-shadow: 0 16px 40px -8px rgba(0, 10, 28, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      background: rgba(9, 22, 42, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(125, 211, 252, 0.26);
+      box-shadow: 0 20px 50px -10px rgba(0, 8, 24, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
     .hud-pill {
-      background: rgba(15, 34, 61, 0.82);
+      background: rgba(14, 32, 58, 0.85);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(186, 230, 253, 0.26);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(186, 230, 253, 0.28);
+      box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .hud-pill:hover {
       transform: translateY(-2px);
-      border-color: rgba(251, 191, 36, 0.75);
-      box-shadow: 0 14px 30px -5px rgba(14, 165, 233, 0.4);
+      border-color: rgba(251, 191, 36, 0.85);
+      box-shadow: 0 12px 28px -4px rgba(14, 165, 233, 0.45);
     }
 
     .drawer-transition {
-      transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+      transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
     }
 
     ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
     }
     ::-webkit-scrollbar-track {
       background: transparent;
@@ -58,7 +95,7 @@
     }
 
     @keyframes subtlePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.55); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.6); }
       50% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
     }
     .chair-ring-pulse {
@@ -66,15 +103,34 @@
     }
   </style>
 </head>
-<body class="h-screen w-screen relative">
+<body class="h-screen w-screen relative ntou-cursor-on">
 
-  <!-- 主畫布：2.5D 海大電機學程島 -->
+  <!-- ========================================================= -->
+  <!-- 100% 保證顯示的正版海大校徽立體互動游標 (解決瀏覽器限制) -->
+  <!-- ========================================================= -->
+  <div id="customCursorFollower">
+    <div id="customCursorInner" class="relative w-full h-full">
+      <!-- 左上角黃金精準點擊箭頭尖端 -->
+      <svg class="absolute -top-1 -left-1 w-5 h-5 z-10" viewBox="0 0 24 24">
+        <polygon points="2,2 19,7 12,12 7,19" fill="#fbbf24" stroke="#0f172a" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <!-- 右下跟隨的正版海大深藍三道白浪校徽 -->
+      <div class="absolute top-2 left-2 w-8 h-8 rounded-full overflow-hidden border-2 border-amber-300 shadow-lg bg-white">
+        <img id="cursorNtouImg" alt="NTOU Cursor" class="w-full h-full object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 主畫布：全 3D 立體等距海大電機島 -->
   <canvas id="islandCanvas" class="w-full h-full block"></canvas>
 
+  <!-- ========================================================= -->
   <!-- 頂部懸浮導覽列 -->
-  <header class="fixed top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
+  <!-- ========================================================= -->
+  <header class="fixed top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+    <!-- 左上：正版海大校徽與系所名牌 -->
     <div class="hud-glass rounded-full pl-2.5 pr-5 py-2 flex items-center gap-3 pointer-events-auto">
-      <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-sky-300/80 shadow-lg bg-white flex items-center justify-center shrink-0">
+      <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-sky-300/90 shadow-lg bg-white flex items-center justify-center shrink-0">
         <img id="topNtouLogo" alt="NTOU Logo" class="w-full h-full object-cover" />
       </div>
       <div>
@@ -82,12 +138,12 @@
           <h1 class="text-sm sm:text-base font-black tracking-tight text-white">
             國立臺灣海洋大學 電機工程學系
           </h1>
-          <span class="hidden sm:inline-block text-[10px] font-bold bg-gradient-to-r from-sky-400 to-blue-500 text-slate-950 px-2 py-0.5 rounded-full">
-            互動學程島
+          <span class="hidden sm:inline-block text-[10px] font-extrabold bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 px-2 py-0.5 rounded-full shadow">
+            3D 立體學程島 v4.0
           </span>
         </div>
-        <div class="text-[11px] text-sky-200/85 flex items-center gap-2">
-          <span>113學年度必修科目表</span>
+        <div class="text-[11px] text-sky-200/90 flex items-center gap-2">
+          <span>113學年度必修科目表 · 師資與實驗室</span>
           <span>·</span>
           <a href="https://ee.ntou.edu.tw/" target="_blank" class="text-amber-300 hover:text-amber-200 hover:underline font-semibold">
             ee.ntou.edu.tw ↗
@@ -96,47 +152,51 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-2 pointer-events-auto">
-      <button onclick="focusOnChair()" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-amber-300 flex items-center gap-2">
+    <!-- 右上：功能按鈕群 (新增【師資陣容與實驗室】) -->
+    <div class="flex flex-wrap items-center gap-2 pointer-events-auto">
+      <button onclick="focusOnChair()" class="hud-pill rounded-full px-3.5 py-2 text-xs font-bold text-amber-300 flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-        <span>系主任譚仕煒教授導覽</span>
+        <span>系主任譚仕煒導覽</span>
       </button>
 
-      <button onclick="openModal('creditModal')" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-sky-100 flex items-center gap-2">
+      <button onclick="openModal('facultyModal')" class="hud-pill rounded-full px-4 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-sky-600/80 to-indigo-600/80 border-sky-300/60 flex items-center gap-1.5">
+        <span>👨‍🔬 師資陣容與實驗室</span>
+        <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">六大組</span>
+      </button>
+
+      <button onclick="openModal('creditModal')" class="hud-pill rounded-full px-3.5 py-2 text-xs font-bold text-sky-100 flex items-center gap-1.5">
         <span>🧮 畢業學分試算</span>
         <span id="navCreditBadge" class="bg-sky-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">68/137</span>
       </button>
 
-      <button onclick="openModal('prereqModal')" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-indigo-100 hidden md:flex items-center gap-1.5">
-        <span>🕸️ 必修與六選三關聯圖</span>
+      <button onclick="openModal('prereqModal')" class="hud-pill rounded-full px-3.5 py-2 text-xs font-bold text-indigo-100 hidden md:flex items-center gap-1.5">
+        <span>🕸️ 必修與六選三關聯</span>
       </button>
 
-      <button onclick="openModal('deptModal')" class="hud-pill rounded-full px-4 py-2 text-xs font-bold text-emerald-100 hidden lg:flex items-center gap-1.5">
-        <span>🏛️ 系所與六大領域</span>
-      </button>
-
-      <button onclick="toggleDayNight()" id="themeBtn" class="hud-pill rounded-full w-10 h-10 flex items-center justify-center text-sm" title="切換日夜海景氛圍">
+      <button onclick="toggleDayNight()" id="themeBtn" class="hud-pill rounded-full w-9 h-9 flex items-center justify-center text-sm" title="切換日夜 3D 光影">
         ☀️
       </button>
 
-      <button onclick="toggleLogoCursor()" id="cursorBtn" class="hud-pill rounded-full px-3.5 py-2 text-xs font-bold text-amber-200 flex items-center gap-1.5" title="切換海大校徽游標">
-        <span>校徽游標: 開</span>
+      <button onclick="toggleLogoCursor()" id="cursorBtn" class="hud-pill rounded-full px-3 py-2 text-xs font-bold text-amber-200 flex items-center gap-1" title="切換海大校徽游標">
+        <span>⚓ 校徽游標: 開</span>
       </button>
     </div>
   </header>
 
-  <!-- 左側：區域快速導覽與年級篩選 -->
+  <!-- ========================================================= -->
+  <!-- 左側：3D 建築地標與學生年級導覽 -->
+  <!-- ========================================================= -->
   <div class="fixed left-4 top-1/2 -translate-y-1/2 z-20 hidden sm:flex flex-col gap-2">
-    <div class="hud-glass rounded-3xl p-2.5 flex flex-col gap-1.5 w-52">
-      <div class="px-2.5 pt-1 pb-1.5 flex items-center justify-between border-b border-sky-400/15">
-        <span class="text-[11px] font-extrabold tracking-wider text-sky-300">ISLAND ZONES</span>
-        <button onclick="resetView()" class="text-[10px] text-amber-300 hover:underline font-semibold">全景</button>
+    <div class="hud-glass rounded-3xl p-2.5 flex flex-col gap-1.5 w-56">
+      <div class="px-2.5 pt-1 pb-1.5 flex items-center justify-between border-b border-sky-400/20">
+        <span class="text-[11px] font-extrabold tracking-wider text-sky-300">3D ISLAND BUILDINGS</span>
+        <button onclick="resetView()" class="text-[10px] text-amber-300 hover:underline font-semibold">全景視角</button>
       </div>
       <div id="quickZonesList" class="flex flex-col gap-1"></div>
 
-      <div class="pt-2 mt-1 border-t border-sky-400/15 px-1">
+      <div class="pt-2 mt-1 border-t border-sky-400/20 px-1">
         <div class="text-[10px] text-slate-300 font-semibold mb-1.5 flex justify-between">
-          <span>島上學生動態</span>
+          <span>3D 學生角色篩選</span>
           <span id="onlineStudentCount" class="text-sky-300 font-mono">12 人</span>
         </div>
         <div class="grid grid-cols-5 gap-1 text-[10px] font-bold">
@@ -150,7 +210,9 @@
     </div>
   </div>
 
+  <!-- ========================================================= -->
   <!-- 底部中央：系主任譚仕煒教授互動導覽匣 -->
+  <!-- ========================================================= -->
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-[92vw] max-w-2xl pointer-events-auto">
     <div class="hud-glass rounded-3xl p-3.5 sm:p-4 flex items-center gap-4">
       <div onclick="focusOnChair()" class="relative shrink-0 cursor-pointer group">
@@ -167,7 +229,7 @@
           <div class="flex items-center gap-2 truncate">
             <span id="speakerTitle" class="text-sm sm:text-base font-black text-amber-300 truncate">譚仕煒 教授 兼系主任</span>
             <span id="speakerSubtitle" class="hidden sm:inline-block text-[11px] bg-sky-400/15 text-sky-200 border border-sky-300/25 px-2.5 py-0.5 rounded-full">
-              電機一館 602 室 · 分機 6200
+              固態電子組 · 電機一館 602 室 (分機 6200)
             </span>
           </div>
           <button onclick="cycleChairSpeech()" class="shrink-0 text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1 rounded-full shadow transition">
@@ -176,26 +238,26 @@
         </div>
 
         <p id="speakerText" class="text-xs sm:text-[13px] text-slate-100/95 leading-relaxed mb-2">
-          「誠摯歡迎加入『海洋大學電機工程學系』大家庭！點擊島上任一建築或漫步的學長姐，即可探索本系 137 畢業學分、六選三必選核心課程與六大專業研究領域。」
+          「誠摯歡迎來到全新 3D 立體化的『海洋大學電機工程學系』學程島！點擊島上 3D 系館建築或右上角【師資陣容與實驗室】，即可查看本系六大專業領域教授群、研究專長、實驗室位置與 137 畢業學分規劃！」
         </p>
 
         <div class="flex flex-wrap items-center gap-1.5">
           <button onclick="setChairSpeech('welcome')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">💬 系主任的話</button>
+          <button onclick="setChairSpeech('faculty')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">👨‍🔬 師資與實驗室</button>
           <button onclick="setChairSpeech('rules')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">📋 137學分與六選三</button>
-          <button onclick="setChairSpeech('tracks')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">🔬 六大專業領域</button>
-          <button onclick="setChairSpeech('lab')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-sky-500/30 border border-sky-300/20 text-sky-200 transition">☀️ 主任光電與半導體研究</button>
+          <button onclick="openModal('facultyModal')" class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-400/20 hover:bg-amber-400/35 border border-amber-400/50 text-amber-200 font-bold transition">🔬 查看全部教授實驗室 ↗</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 右側精品滑出式課程抽屜 -->
+  <!-- 右側精品滑出式課程與對應師資抽屜 -->
   <aside id="zoneDrawer" class="fixed top-20 right-4 bottom-24 z-30 w-[90vw] max-w-md hud-glass rounded-3xl flex flex-col overflow-hidden translate-x-[120%] opacity-0 drawer-transition">
     <div class="p-4 sm:p-5 border-b border-sky-300/15 flex items-center justify-between bg-gradient-to-r from-sky-950/60 to-slate-900/60">
       <div class="flex items-center gap-3">
         <div id="drawerIcon" class="w-11 h-11 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-2xl">⚓</div>
         <div>
-          <h3 id="drawerTitle" class="text-base sm:text-lg font-black text-white">大一基礎啟航灣</h3>
+          <h3 id="drawerTitle" class="text-base sm:text-lg font-black text-white">大一基礎啟航館</h3>
           <p id="drawerSubtitle" class="text-xs text-sky-300"></p>
         </div>
       </div>
@@ -212,7 +274,45 @@
     <button onclick="adjustZoom(0.86)" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-xs font-black transition">−</button>
   </div>
 
+  <!-- ========================================================= -->
+  <!-- 彈窗 0 (全新核心功能)：海大電機系師資陣容、研究專長與實驗室一覽 -->
+  <!-- ========================================================= -->
+  <div id="facultyModal" class="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="hud-glass rounded-3xl max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-sky-400/40">
+      <div class="p-5 border-b border-sky-300/20 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-900 via-blue-950/80 to-slate-900">
+        <div class="flex items-center gap-3">
+          <img id="facultyModalLogo" alt="NTOU" class="w-11 h-11 rounded-full border-2 border-amber-400 bg-white" />
+          <div>
+            <h3 class="text-lg sm:text-xl font-black text-white">👨‍🔬 國立臺灣海洋大學電機工程學系 · 師資陣容、研究專長與實驗室</h3>
+            <p class="text-xs text-sky-200/90">整合自海大電機系官網師資介紹 (412-1062-7475) 與研究實驗室 (412-1062-7492) · 點擊領域標籤可快速篩選專題指導教授</p>
+          </div>
+        </div>
+        <button onclick="closeModal('facultyModal')" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-rose-500 text-white font-bold">✕</button>
+      </div>
+
+      <!-- 領域篩選列與搜尋框 -->
+      <div class="p-4 bg-slate-900/90 border-b border-sky-300/15 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-1.5" id="facultyGroupTabs">
+          <button onclick="filterFaculty('ALL')" data-fgroup="ALL" class="f-tab px-3 py-1.5 rounded-full text-xs font-black bg-amber-400 text-slate-950">全部師資</button>
+          <button onclick="filterFaculty('固態電子組')" data-fgroup="固態電子組" class="f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300">固態電子組</button>
+          <button onclick="filterFaculty('控制組')" data-fgroup="控制組" class="f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-300">控制組</button>
+          <button onclick="filterFaculty('電力與電子電路組')" data-fgroup="電力與電子電路組" class="f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-sky-300">電力與電子電路組</button>
+          <button onclick="filterFaculty('電波組')" data-fgroup="電波組" class="f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-purple-300">電波組</button>
+          <button onclick="filterFaculty('通訊與訊號處理組')" data-fgroup="通訊與訊號處理組" class="f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-pink-300">通訊與訊號處理組</button>
+          <button onclick="filterFaculty('資訊科技組')" data-fgroup="資訊科技組" class="f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300">資訊科技組</button>
+        </div>
+        <input type="text" id="facultySearchInput" oninput="renderFacultyCards()" placeholder="🔍 搜尋教授姓名、專長、實驗室..."
+               class="px-3.5 py-1.5 rounded-full bg-slate-950 border border-sky-400/40 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-400 w-64" />
+      </div>
+
+      <!-- 師資與實驗室卡片網格 -->
+      <div id="facultyGridContainer" class="p-5 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
   <!-- 彈窗 1：113學年度 137 畢業學分互動試算器 -->
+  <!-- ========================================================= -->
   <div id="creditModal" class="fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="hud-glass rounded-3xl max-w-5xl w-full max-h-[88vh] flex flex-col overflow-hidden">
       <div class="p-5 border-b border-sky-300/15 flex flex-wrap items-center justify-between gap-3">
@@ -254,52 +354,19 @@
     </div>
   </div>
 
+  <!-- ========================================================= -->
   <!-- 彈窗 2：必修與核心課程關聯圖 -->
+  <!-- ========================================================= -->
   <div id="prereqModal" class="fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="hud-glass rounded-3xl max-w-6xl w-full max-h-[88vh] flex flex-col overflow-hidden">
       <div class="p-5 border-b border-sky-300/15 flex items-center justify-between">
         <div>
-          <h3 class="text-lg sm:text-xl font-black text-white">🕸️ 電機系大學部必修與核心課程關聯圖（先修與六大領域路徑）</h3>
-          <p class="text-xs text-sky-200/80">整合自系上必修與核心課程關聯圖：從大一基礎、大二三電一工到六選三核心與六大專業領域</p>
+          <h3 class="text-lg sm:text-xl font-black text-white">🕸️ 電機系大學部必修與核心課程關聯圖（先修與六大領域實驗室路徑）</h3>
+          <p class="text-xs text-sky-200/80">整合自系上必修與核心課程關聯圖：從大一基礎、大二三電一工到六選三核心與六大專業領域實驗室</p>
         </div>
         <button onclick="closeModal('prereqModal')" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-rose-500 text-white font-bold">✕</button>
       </div>
       <div id="prereqModalBody" class="p-5 overflow-y-auto space-y-5"></div>
-    </div>
-  </div>
-
-  <!-- 彈窗 3：海大電機系所簡介 -->
-  <div id="deptModal" class="fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="hud-glass rounded-3xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden">
-      <div class="p-5 border-b border-sky-300/15 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <img id="modalNtouLogo" alt="NTOU" class="w-10 h-10 rounded-full border border-sky-300 bg-white" />
-          <div>
-            <h3 class="text-lg sm:text-xl font-black text-white">國立臺灣海洋大學電機工程學系 · 系所介紹與修業規定</h3>
-            <p class="text-xs text-sky-300">整合自 https://ee.ntou.edu.tw/ 官方網站與 113 學年度必修科目表</p>
-          </div>
-        </div>
-        <button onclick="closeModal('deptModal')" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-rose-500 text-white font-bold">✕</button>
-      </div>
-
-      <div class="p-6 overflow-y-auto space-y-5 text-sm text-slate-200 leading-relaxed">
-        <div class="p-4 rounded-2xl bg-slate-900/80 border border-amber-400/40 flex flex-col sm:flex-row gap-4 items-center">
-          <img id="deptChairPhoto" alt="譚仕煒系主任" class="w-24 h-28 object-cover rounded-2xl border-2 border-amber-400 bg-white shrink-0 shadow-lg" />
-          <div class="space-y-1.5">
-            <div class="flex flex-wrap items-center gap-2">
-              <h4 class="text-base font-black text-amber-300">譚仕煒 教授 兼系主任 (第 17 任系主任)</h4>
-              <span class="text-xs bg-amber-400/20 text-amber-200 px-2.5 py-0.5 rounded-full font-semibold">國立臺灣海洋大學電機工程博士</span>
-            </div>
-            <p class="text-xs text-sky-300 font-semibold">研究專長：太陽能光電、有機光電技術、奈米半導體之通訊元件</p>
-            <p class="text-xs text-slate-400">辦公室：電機一館六樓 602 室 ｜ 電話：(02) 2462-2192 轉 6200 ｜ 信箱：tanshwei@mail.ntou.edu.tw</p>
-            <p class="text-xs text-slate-200 italic border-l-2 border-amber-400 pl-3 pt-1">
-              「在此謹代表本系全體師生，誠摯歡迎加入『海洋大學電機工程學系』大家庭，期盼往後的四年，成為同學們一生當中最美好的黃金時光。期盼在『海洋大學電機工程學系』學到的專業能力，就是日後推動電機電子高科技產業不可或缺的推手！」
-            </p>
-          </div>
-        </div>
-
-        <div id="deptTracksGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-      </div>
     </div>
   </div>
 
@@ -311,12 +378,10 @@
 
     const NTOU_LOGO_B64 = 'data:image/webp;base64,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';
 
-    const NTOU_CURSOR_PNG = 'data:image/png;base64,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';
-
     document.getElementById('topNtouLogo').src = NTOU_LOGO_B64;
-    document.getElementById('modalNtouLogo').src = NTOU_LOGO_B64;
+    document.getElementById('facultyModalLogo').src = NTOU_LOGO_B64;
+    document.getElementById('cursorNtouImg').src = NTOU_LOGO_B64;
     document.getElementById('chairCardAvatar').src = CHAIR_PHOTO_B64;
-    document.getElementById('deptChairPhoto').src = CHAIR_PHOTO_B64;
 
     const chairImg = new Image();
     chairImg.src = CHAIR_PHOTO_B64;
@@ -324,38 +389,307 @@
     const ntouLogoImg = new Image();
     ntouLogoImg.src = NTOU_LOGO_B64;
 
+    // 100% 可見的海大校徽游標跟隨器
+    const cursorEl = document.getElementById('customCursorFollower');
     let logoCursorEnabled = true;
-    function applyCustomCursorStyle() {
-      if (logoCursorEnabled) {
-        document.body.style.cursor = `url("${NTOU_CURSOR_PNG}") 16 16, auto`;
-      } else {
-        document.body.style.cursor = 'default';
-      }
-    }
-    applyCustomCursorStyle();
+
+    window.addEventListener('mousemove', e => {
+      if (!logoCursorEnabled) return;
+      cursorEl.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+      const t = e.target;
+      const isClickable = t && (t.tagName === 'BUTTON' || t.tagName === 'A' || t.tagName === 'INPUT' || t.tagName === 'LABEL' || t.closest('button') || t.closest('a') || t.closest('label') || hoveredObj);
+      cursorEl.classList.toggle('cursor-hover', !!isClickable);
+    });
+
+    window.addEventListener('mousedown', () => cursorEl.classList.add('cursor-down'));
+    window.addEventListener('mouseup', () => cursorEl.classList.remove('cursor-down'));
 
     function toggleLogoCursor() {
       logoCursorEnabled = !logoCursorEnabled;
-      applyCustomCursorStyle();
-      document.getElementById('cursorBtn').innerHTML = `<span>校徽游標: ${logoCursorEnabled ? '開' : '關'}</span>`;
+      document.body.classList.toggle('ntou-cursor-on', logoCursorEnabled);
+      document.getElementById('cursorBtn').innerHTML = `<span>⚓ 校徽游標: ${logoCursorEnabled ? '開' : '關'}</span>`;
     }
 
     /*************************************************************************
-     * 2. 海大電機系 113 學年度核心課程與島嶼建築資料庫
+     * 2. 海大電機系師資陣容、研究專長與專屬實驗室資料庫
+     *    (整合自 https://ee.ntou.edu.tw/p/412-1062-7475.php 與 7492.php)
+     *************************************************************************/
+    const NTOU_EE_FACULTY = [
+      {
+        name: '譚仕煒',
+        title: '教授 兼系主任',
+        group: '固態電子組',
+        degree: '國立臺灣海洋大學 電機工程博士',
+        specialty: '太陽能光電、有機光電技術、奈米半導體之通訊元件、化合物半導體製程與模擬',
+        lab: '光電與奈米半導體元件實驗室',
+        office: '電機一館 602 室 (分機 6200)',
+        email: 'tanshwei@mail.ntou.edu.tw',
+        isChair: true
+      },
+      {
+        name: '林正軒',
+        title: '副教授',
+        group: '固態電子組',
+        degree: '國立臺灣大學 電子工程博士',
+        specialty: '二維奈米材料與元件、光電感測器、半導體元件物理與高靈敏度生醫感測技術',
+        lab: '前瞻奈米電子與光電元件實驗室',
+        office: '電機一館 6樓 / 電機二館實驗室',
+        email: 'chlin@mail.ntou.edu.tw'
+      },
+      {
+        name: '黃培華',
+        title: '副教授',
+        group: '固態電子組',
+        degree: '國立清華大學 電機工程博士',
+        specialty: '超大型積體電路設計 (VLSI)、低功耗數位晶片設計、硬體安全與記憶體電路技術',
+        lab: '超大型積體電路與系統設計實驗室',
+        office: '電機一館 / 積體電路實驗室',
+        email: 'phhuang@mail.ntou.edu.tw'
+      },
+      {
+        name: '鄭慕德',
+        title: '教授',
+        group: '控制組',
+        degree: '國立臺灣大學 電機工程博士',
+        specialty: '智慧型機器人控制、模糊控制系統、無人載具導航與嵌入式系統整合應用',
+        lab: '智慧型控制與機器人實驗室',
+        office: '電機一館 5樓 (分機 6215)',
+        email: 'mdcheng@mail.ntou.edu.tw'
+      },
+      {
+        name: '王榮華',
+        title: '教授',
+        group: '控制組',
+        degree: '國立成功大學 電機工程博士',
+        specialty: '非線性控制系統、精密伺服運動控制、機電整合與自動化系統設計',
+        lab: '精密運動與智慧控制實驗室',
+        office: '電機一館 5樓',
+        email: 'jhwang@mail.ntou.edu.tw'
+      },
+      {
+        name: '吳政郎',
+        title: '教授',
+        group: '控制組',
+        degree: '國立臺灣大學 電機工程博士',
+        specialty: '強健控制理論、線性矩陣不等式(LMI)控制應用、網路化控制系統與智慧自動化',
+        lab: '系統控制與訊號處理實驗室',
+        office: '電機一館 5樓',
+        email: 'jlwu@mail.ntou.edu.tw'
+      },
+      {
+        name: '梁添富',
+        title: '副教授',
+        group: '控制組',
+        degree: '國立交通大學 電機與控制工程博士',
+        specialty: '微控制器系統應用、智慧感測器網路、嵌入式AIoT物聯網與自主移動機器人',
+        lab: '微電腦控制與智慧系統實驗室',
+        office: '電機一館 5樓',
+        email: 'tfliang@mail.ntou.edu.tw'
+      },
+      {
+        name: '卓大靖',
+        title: '教授',
+        group: '電力與電子電路組',
+        degree: '國立成功大學 電機工程博士',
+        specialty: '電力系統分析、配電工程、再生能源併網技術、微電網與智慧電網最佳化',
+        lab: '電力系統與智慧電網實驗室',
+        office: '電機一館 3樓',
+        email: 'tccho@mail.ntou.edu.tw'
+      },
+      {
+        name: '周孜燦',
+        title: '教授',
+        group: '電力與電子電路組',
+        degree: '美國德州大學阿靈頓分校 電機博士',
+        specialty: '電力電子轉換器設計、電能品質控制、電動車馬達驅動器與高效率綠能電源供應器',
+        lab: '電力電子與綠能轉換實驗室',
+        office: '電機一館 3樓',
+        email: 'ttchou@mail.ntou.edu.tw'
+      },
+      {
+        name: '盧晃瑩',
+        title: '副教授',
+        group: '電力與電子電路組',
+        degree: '國立臺灣科技大學 電機工程博士',
+        specialty: '電機機械設計、切換式電源供應器、再生能源發電控制與電源管理積體電路',
+        lab: '電能轉換與馬達驅動實驗室',
+        office: '電機一館 3樓',
+        email: 'hylu@mail.ntou.edu.tw'
+      },
+      {
+        name: '李聯旺',
+        title: '教授',
+        group: '電波組',
+        degree: '國立臺灣大學 電機工程博士',
+        specialty: '微波工程、多頻段天線設計、射頻主動與被動電路設計、電磁相容(EMC)與毫米波技術',
+        lab: '高頻電磁與微波天線實驗室',
+        office: '電機二館 4樓 (微波暗室實驗室)',
+        email: 'lwlee@mail.ntou.edu.tw'
+      },
+      {
+        name: '曾敬翔',
+        title: '教授',
+        group: '電波組',
+        degree: '國立臺灣大學 電信工程博士',
+        specialty: '射頻與微波積體電路(RFIC/MMIC)、生物微波雷達感測器、無線電力傳輸與5G/衛星前端電路',
+        lab: '射頻電路與微波雷達實驗室',
+        office: '電機二館 4樓',
+        email: 'chtseng@mail.ntou.edu.tw'
+      },
+      {
+        name: '張枝成',
+        title: '副教授',
+        group: '電波組',
+        degree: '國立交通大學 電信工程博士',
+        specialty: '計算電磁學、電磁波散射與逆散射、平面超材料天線設計與高頻高速訊號完整性',
+        lab: '電磁理論與天線設計實驗室',
+        office: '電機二館 4樓',
+        email: 'ccchang@mail.ntou.edu.tw'
+      },
+      {
+        name: '陳志成',
+        title: '教授',
+        group: '通訊與訊號處理組',
+        degree: '國立清華大學 電機工程博士',
+        specialty: '數位通訊系統、5G/B5G/6G無線通訊技術、MIMO多天線訊號處理、非地面網路(NTN)衛星通訊與通道估測',
+        lab: '無線通訊與訊號處理實驗室',
+        office: '電機二館 3樓',
+        email: 'ccchen@mail.ntou.edu.tw'
+      },
+      {
+        name: '林士強',
+        title: '教授',
+        group: '通訊與訊號處理組',
+        degree: '國立交通大學 電信工程博士',
+        specialty: '合作式通訊、錯誤更正碼(Polar/LDPC Codes)、下世代行動通訊協定與水下聲納通訊訊號處理',
+        lab: '先進通訊系統與編碼實驗室',
+        office: '電機二館 3樓',
+        email: 'sclin@mail.ntou.edu.tw'
+      },
+      {
+        name: '張忠誠',
+        title: '教授',
+        group: '通訊與訊號處理組',
+        degree: '國立臺灣大學 電信工程博士',
+        specialty: '數位訊號處理(DSP)、語音與生醫訊號處理(ECG/EEG)、陣列訊號處理與水下聲學通訊',
+        lab: '數位訊號與生醫訊號處理實驗室',
+        office: '電機二館 3樓',
+        email: 'ccchang2@mail.ntou.edu.tw'
+      },
+      {
+        name: '謝易叡',
+        title: '副教授',
+        group: '資訊科技組',
+        degree: '國立臺灣大學 資訊工程博士',
+        specialty: '電腦視覺、深度學習與人工智慧影像處理、智慧醫療影像分析、邊緣AI硬體加速架構',
+        lab: '智慧視覺與深度學習實驗室',
+        office: '電機二館 5樓',
+        email: 'yjhsieh@mail.ntou.edu.tw'
+      },
+      {
+        name: '王智瑩',
+        title: '副教授',
+        group: '資訊科技組',
+        degree: '國立交通大學 資訊科學與工程博士',
+        specialty: '無線網路通訊協定、物聯網(IoT)與車聯網系統、雲端運算、資料結構與網路安全演算法',
+        lab: '行動計算與寬頻網路實驗室',
+        office: '電機二館 5樓',
+        email: 'cywang@mail.ntou.edu.tw'
+      }
+    ];
+
+    let activeFacultyGroup = 'ALL';
+
+    function filterFaculty(groupName) {
+      activeFacultyGroup = groupName;
+      document.querySelectorAll('.f-tab').forEach(btn => {
+        const g = btn.getAttribute('data-fgroup');
+        if (g === groupName) {
+          btn.className = 'f-tab px-3 py-1.5 rounded-full text-xs font-black bg-amber-400 text-slate-950 shadow';
+        } else {
+          btn.className = 'f-tab px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300';
+        }
+      });
+      renderFacultyCards();
+    }
+
+    function renderFacultyCards() {
+      const container = document.getElementById('facultyGridContainer');
+      const kw = (document.getElementById('facultySearchInput')?.value || '').trim().toLowerCase();
+
+      const list = NTOU_EE_FACULTY.filter(f => {
+        const matchGroup = activeFacultyGroup === 'ALL' || f.group === activeFacultyGroup;
+        const matchKw = !kw || f.name.toLowerCase().includes(kw) || f.specialty.toLowerCase().includes(kw) || f.lab.toLowerCase().includes(kw) || f.group.toLowerCase().includes(kw);
+        return matchGroup && matchKw;
+      });
+
+      const groupBadgeColors = {
+        '固態電子組': 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+        '控制組': 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+        '電力與電子電路組': 'bg-sky-500/20 text-sky-300 border-sky-400/40',
+        '電波組': 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+        '通訊與訊號處理組': 'bg-pink-500/20 text-pink-300 border-pink-400/40',
+        '資訊科技組': 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40'
+      };
+
+      container.innerHTML = list.map(f => `
+        <div class="p-4 rounded-3xl bg-slate-900/85 border ${f.isChair ? 'border-amber-400/80 shadow-lg shadow-amber-500/10' : 'border-slate-800 hover:border-sky-400/60'} flex flex-col justify-between gap-3 transition">
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3">
+              ${f.isChair
+                ? `<img src="${CHAIR_PHOTO_B64}" class="w-14 h-16 rounded-2xl object-cover border-2 border-amber-400 bg-white shrink-0" />`
+                : `<div class="w-13 h-13 rounded-2xl bg-gradient-to-br from-sky-500/30 to-indigo-900/60 border border-sky-400/40 flex items-center justify-center text-lg font-black text-sky-200 shrink-0">${f.name[0]}</div>`
+              }
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <h4 class="text-base font-black text-white truncate">${f.name} <span class="text-xs font-bold text-amber-300">${f.title}</span></h4>
+                </div>
+                <div class="text-[11px] text-slate-400 truncate">${f.degree}</div>
+                <span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${groupBadgeColors[f.group] || 'bg-slate-800 text-slate-200'}">${f.group}</span>
+              </div>
+            </div>
+
+            <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-1">
+              <div class="text-[11px] font-extrabold text-sky-300 flex items-center gap-1">
+                <span>🏛️ 專屬實驗室：</span>
+                <span class="text-white">${f.lab}</span>
+              </div>
+              <div class="text-[11px] text-slate-300 leading-relaxed">
+                <b class="text-amber-300">🔬 研究專長：</b>${f.specialty}
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+            <span>📍 ${f.office}</span>
+            <span class="font-mono text-sky-300/80">${f.email}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /*************************************************************************
+     * 3. 海大電機系 3D 立體建築群與 113 學年度核心課程資料庫
      *************************************************************************/
     const ISLAND_ZONES = [
       {
         id: 'freshman',
-        name: '大一基礎啟航灣',
+        name: '大一基礎啟航大樓',
         tag: 'YEAR 1 · 基礎必修 42 學分',
         subtitle: '第一學年（上 20 學分 / 下 22 學分）',
         icon: '⚓',
-        x: -360,
-        y: 135,
+        x: -365,
+        y: 130,
+        w: 96,
+        d: 68,
+        h: 58,
+        floors: 3,
+        topColor: '#34d399',
+        leftColor: '#10b981',
+        rightColor: '#047857',
         accent: '#10b981',
-        roof: '#059669',
-        wall: '#ecfdf5',
-        desc: '大一新生踏入海大電機的第一站！奠定微積分、普通物理、程式設計、交換電路與邏輯設計及微處理機實作基礎。',
+        facultyGroup: '資訊科技組',
+        desc: '大一新生踏入海大電機的第一座 3D 實驗大樓！奠定微積分、普通物理、程式設計、交換電路與邏輯設計及微處理機硬體基礎。',
         courses: [
           { code: 'B5311M9H / 21M9H', name: '微積分 (上/下)', credits: 8, sem: '一上(4)·一下(4)', type: '系訂專業必修', note: '工程數學與電磁訊號分析之根本' },
           { code: 'B53114EE / 214EE', name: '普通物理 (上/下)', credits: 4, sem: '一上(2)·一下(2)', type: '系訂專業必修', note: '力學、電磁與近代半導體物理基礎' },
@@ -364,22 +698,27 @@
           { code: 'B530111E / N06', name: '微處理機概論 + 微處理機實驗', credits: 4, sem: '一下(3+1)', type: '系訂專業必修', note: '嵌入式系統與微控制器軟硬整合' },
           { code: 'B5311P48', name: '電路學 (一)', credits: 3, sem: '一下(3)', type: '系訂專業必修', note: '電路學一下、二上課程需依序修習' },
           { code: 'B530108U', name: '工程數學 (Ⅰ)', credits: 3, sem: '一下(3)', type: '系訂專業必修', note: '常微分方程與拉普拉斯轉換' },
-          { code: 'B9M01024 / Z64', name: '人工智慧概論 + 海洋科學概論', credits: 4, sem: '一上(2)·一下(2)', type: '共同教育必修', note: '海大特色大一必修博雅課程' },
-          { code: '12-國文 / B9B英文', name: '大一國文(4) + 大一英文(4)', credits: 8, sem: '一上(4)·一下(4)', type: '共同教育必修', note: '英檢中高級通過得依規定抵免' }
+          { code: 'B9M01024 / Z64', name: '人工智慧概論 + 海洋科學概論', credits: 4, sem: '一上(2)·一下(2)', type: '共同教育必修', note: '海大特色大一必修博雅課程' }
         ]
       },
       {
         id: 'sophomore',
-        name: '大二三電一工核心堡',
+        name: '大二三電一工核心塔',
         tag: 'YEAR 2 · 核心必修 42 學分',
         subtitle: '第二學年（上 22 學分 / 下 20 學分）',
         icon: '⚡',
-        x: -210,
-        y: -150,
+        x: -215,
+        y: -145,
+        w: 102,
+        d: 72,
+        h: 74,
+        floors: 4,
+        topColor: '#38bdf8',
+        leftColor: '#0284c7',
+        rightColor: '#0369a1',
         accent: '#0ea5e9',
-        roof: '#0284c7',
-        wall: '#f0f9ff',
-        desc: '電機系最關鍵的黃金大二！「電路學、電子學、電磁學、工程數學」與線性代數、機率學、訊號與系統在此全面貫通。',
+        facultyGroup: '電力與電子電路組',
+        desc: '電機系最關鍵的 3D 雙子核心塔！「電路學、電子學、電磁學、工程數學」與線性代數、機率學、訊號與系統在此全面貫通。',
         courses: [
           { code: 'B5322P48', name: '電路學 (二)', credits: 3, sem: '二上(3)', type: '系訂專業必修', note: '交流穩態、雙埠網路與頻率響應分析' },
           { code: 'B5312P17 / 22P17', name: '電子學 (一)(二) + 實驗 (一)(二)', credits: 8, sem: '二上(4)·二下(4)', type: '系訂專業必修', note: 'BJT/MOSFET放大器、頻率響應與麵包板實測' },
@@ -387,61 +726,78 @@
           { code: 'B5302S60', name: '線性代數', credits: 3, sem: '二上(3)', type: '系訂專業必修', note: '矩陣理論、特徵空間，通訊與AI核心數學' },
           { code: 'B5302P50 / P49', name: '電磁學 (二上) + 電磁波 (二下)', credits: 6, sem: '二上(3)·二下(3)', type: '系訂專業必修', note: '馬克斯威爾方程式、傳輸線與高頻微波基礎' },
           { code: 'B5302T86', name: '機率學', credits: 3, sem: '二下(3)', type: '系訂專業必修', note: '隨機程序與通訊雜訊統計基礎' },
-          { code: 'B5302D81', name: '訊號與系統', credits: 3, sem: '二下(3)', type: '系訂專業必修', note: '連續/離散時間系統、頻域分析與濾波' },
-          { code: '38-進階英文', name: '進階英文', credits: 2, sem: '二上(2)', type: '共同教育必修', note: '大二（含）以上始可修習' }
+          { code: 'B5302D81', name: '訊號與系統', credits: 3, sem: '二下(3)', type: '系訂專業必修', note: '連續/離散時間系統、頻域分析與濾波' }
         ]
       },
       {
         id: 'core63',
-        name: '六選三專業分流樞紐',
-        tag: 'CORE · 系訂必選修 15 學分',
+        name: '六選三與六大領域樞紐館',
+        tag: 'CORE · 必選修 15 學分 & 六大組',
         subtitle: '6 門核心必選 3 門 (9學分) + 2 門領域指定 (6學分)',
         icon: '🧭',
         x: 215,
-        y: -150,
+        y: -145,
+        w: 108,
+        d: 74,
+        h: 78,
+        floors: 4,
+        topColor: '#fbbf24',
+        leftColor: '#d97706',
+        rightColor: '#92400e',
         accent: '#f59e0b',
-        roof: '#d97706',
-        wall: '#fffbeb',
-        desc: '連接大二基礎與六大研究領域的智慧樞紐！從六大核心課程至少必選 3 門，並加修 2 門對應領域指定選修課程。',
+        facultyGroup: '固態電子組',
+        desc: '連接大二基礎與六大研究實驗室的 3D 黃金樞紐！從六大核心課程至少必選 3 門，直接對應本系六大專業領域師資與實驗室。',
         courses: [
-          { code: '固態電子組核心', name: '半導體物理', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '能帶理論、載子傳輸與半導體元件物理' },
-          { code: '控制組核心', name: '自動控制', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '回授控制系統、根軌跡與頻域穩定度設計' },
-          { code: '電力與電子電路組核心', name: '電機機械', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '變壓器、交直流馬達與電能轉換控制' },
-          { code: '電波組核心', name: '複變函數', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '解析函數、留數定理與電磁場理論分析' },
-          { code: '通訊與訊號處理組核心', name: '通訊工程', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '類比與數位調變、基頻/載波傳輸與5G/6G通訊' },
-          { code: '資訊科技組核心', name: '資料結構', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '樹、圖論、排序搜尋演算法與軟體系統開發' }
+          { code: '固態電子組核心', name: '半導體物理 (譚仕煒主任/林正軒/黃培華老師群)', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '銜接光電、奈米半導體與VLSI積體電路實驗室' },
+          { code: '控制組核心', name: '自動控制 (鄭慕德/王榮華/吳政郎/梁添富老師群)', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '銜接智慧機器人、精密伺服與AIoT控制實驗室' },
+          { code: '電力與電子電路組核心', name: '電機機械 (卓大靖/周孜燦/盧晃瑩老師群)', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '銜接智慧電網、電力電子與綠能轉換實驗室' },
+          { code: '電波組核心', name: '複變函數 (李聯旺/曾敬翔/張枝成老師群)', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '銜接微波暗室、天線設計與RFIC射頻雷達實驗室' },
+          { code: '通訊與訊號處理組核心', name: '通訊工程 (陳志成/林士強/張忠誠老師群)', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '銜接5G/6G衛星非地面網路、Polar編碼與生醫DSP實驗室' },
+          { code: '資訊科技組核心', name: '資料結構 (謝易叡/王智瑩老師群)', credits: 3, sem: '二下 / 三上', type: '六選三核心必選', note: '銜接深度學習電腦視覺、寬頻網路與邊緣運算實驗室' }
         ]
       },
       {
         id: 'junior',
-        name: '大三專題與電子實驗館',
-        tag: 'YEAR 3 · 專題與高階電路',
-        subtitle: '第三學年（電子學三 + 專題研究Ⅰ + 專業選修）',
+        name: '大三專題與電機二館實驗中心',
+        tag: 'YEAR 3 · 專題研究 & 實驗室',
+        subtitle: '第三學年（電子學三 + 專題研究Ⅰ + 進入教授實驗室）',
         icon: '🔬',
-        x: 370,
+        x: 375,
         y: 125,
+        w: 102,
+        d: 70,
+        h: 68,
+        floors: 4,
+        topColor: '#c084fc',
+        leftColor: '#9333ea',
+        rightColor: '#581c87',
         accent: '#a855f7',
-        roof: '#7e22ce',
-        wall: '#faf5ff',
-        desc: '大三正式選定指導教授進入實驗室展開「專題研究(Ⅰ)」，完成高階「電子學(三)」與實驗，深耕六大專業領域！',
+        facultyGroup: '通訊與訊號處理組',
+        desc: '大三正式選定指導教授進入電機一館/二館研究實驗室展開「專題研究(Ⅰ)」，完成高階「電子學(三)」與領域選修！',
         courses: [
           { code: 'B5333P17 / P18', name: '電子學 (三) + 電子學實驗 (三)', credits: 4, sem: '三上(3+1)', type: '系訂專業必修', note: '回授放大器、OP-Amp積體電路、振盪器與濾波器' },
-          { code: 'B53034GL', name: '專題研究 (Ⅰ)', credits: 2, sem: '三下(2)', type: '系訂專業必修', note: '進入六大領域教授實驗室進行專題實作與文獻研讀' },
+          { code: 'B53034GL', name: '專題研究 (Ⅰ)', credits: 2, sem: '三下(2)', type: '系訂專業必修', note: '進入六大領域教授實驗室進行硬體/晶片/通訊/AI專題實作' },
           { code: 'B9D03TVS / B92A12P5', name: '英文畢業門檻 + 游泳畢業門檻', credits: 0, sem: '三上檢核(0)', type: '畢業門檻', note: '通過英檢與50公尺游泳能力檢核' }
         ]
       },
       {
         id: 'senior',
-        name: '大四專題發表與領航港',
+        name: '大四專題發表與高科技領航港',
         tag: 'YEAR 4 · 137 學分畢業啟航',
         subtitle: '第四學年（專題研究Ⅱ + 27 學分系訂專業選修）',
         icon: '🚀',
         x: 155,
         y: 235,
+        w: 96,
+        d: 66,
+        h: 64,
+        floors: 3,
+        topColor: '#f472b6',
+        leftColor: '#db2777',
+        rightColor: '#831843',
         accent: '#ec4899',
-        roof: '#be185d',
-        wall: '#fdf2f8',
-        desc: '完成「專題研究(Ⅱ)」成果發表與 27 學分專業選修（含日文最多 4 學分認列），滿載 137 學分航向頂尖研究所與科技大廠！',
+        facultyGroup: '電波組',
+        desc: '完成「專題研究(Ⅱ)」成果競賽與展示，修滿 27 學分專業選修（含日文最多 4 學分認列），滿載 137 學分航向頂尖研究所與科技業！',
         courses: [
           { code: 'B53044GM', name: '專題研究 (Ⅱ)', credits: 2, sem: '四上(2)', type: '系訂專業必修', note: '專題硬體/模擬實測成果展示與論文撰寫' },
           { code: '系訂專業選修群', name: '六大領域專業選修課程 (最低 27 學分)', credits: 27, sem: '大二～大四', type: '系訂專業選修', note: '外系選修上限12學分(非電資上限6學分)；日文最多認列4學分' }
@@ -449,16 +805,22 @@
       },
       {
         id: 'boya',
-        name: '海洋博雅與共同教育燈塔',
+        name: '海洋博雅與共同教育 3D 燈塔',
         tag: 'LIBERAL · 共同教育 28 學分',
         subtitle: '四大博雅子領域 (14學分) + 語文與跨域素養',
         icon: '🗼',
         x: -150,
         y: 235,
+        w: 88,
+        d: 62,
+        h: 82,
+        floors: 5,
+        topColor: '#2dd4bf',
+        leftColor: '#0d9488',
+        rightColor: '#115e59',
         accent: '#14b8a6',
-        roof: '#0d9488',
-        wall: '#f0fdfa',
-        desc: '培養海洋與科技兼具的跨領域視野！涵蓋人文探索、社會脈動、科技創新與跨域永續四大博雅領域。',
+        facultyGroup: '控制組',
+        desc: '矗立在海大電機島南灣的 3D 領航燈塔！涵蓋人文探索、社會脈動、科技創新與跨域永續四大博雅領域。',
         courses: [
           { code: '11-博雅課程', name: '四大領域博雅課程 (共 14 學分)', credits: 14, sem: '大二～大三', type: '共同教育必修', note: '跨域永續至少需修2學分，各子領域至多認列4學分' },
           { code: '19-體育課程', name: '體育必修課程 (共四學期)', credits: 0, sem: '一上～二下', type: '共同教育必修', note: '須修滿四學期零學分體育課程' }
@@ -467,12 +829,12 @@
     ];
 
     const SIX_TRACKS = [
-      { group: '固態電子組', core: '半導體物理', prereq: '普通物理 ➔ 電子學(一)(二) / 電磁學', courses: 'VLSI超大型積體電路設計、半導體元件物理、太陽能光電、有機光電技術、奈米電子元件', color: 'from-amber-500 to-orange-500' },
-      { group: '控制組', core: '自動控制', prereq: '微積分 ➔ 工程數學 / 線性代數 / 訊號與系統', courses: '數位控制系統、智慧型控制、機器人學、嵌入式系統、微處理機應用實務', color: 'from-emerald-500 to-teal-500' },
-      { group: '電力與電子電路組', core: '電機機械', prereq: '電路學(一)(二) ➔ 電子學(一)(二)(三)', courses: '電力電子學、類比積體電路設計、電源管理IC、智慧電網與綠能電力系統', color: 'from-sky-500 to-blue-600' },
-      { group: '電波組', core: '複變函數', prereq: '微積分 / 工程數學 ➔ 電磁學 ➔ 電磁波', courses: '微波工程、天線設計與量測、射頻積體電路(RFIC)、電磁相容與高速訊號', color: 'from-purple-500 to-indigo-600' },
-      { group: '通訊與訊號處理組', core: '通訊工程', prereq: '線性代數 / 機率學 ➔ 訊號與系統', courses: '數位通訊、數位訊號處理(DSP)、5G/6G非地面網路(NTN)、編碼理論與多媒體訊號', color: 'from-pink-500 to-rose-600' },
-      { group: '資訊科技組', core: '資料結構', prereq: '程式設計 ➔ 交換電路與邏輯設計', courses: '演算法、計算機組織與結構、人工智慧與深度學習、機器視覺與FPGA數位系統', color: 'from-cyan-500 to-blue-500' }
+      { group: '固態電子組', core: '半導體物理', profs: '譚仕煒 主任、林正軒 教授、黃培華 教授', labs: '光電與奈米半導體元件實驗室、前瞻奈米電子實驗室、VLSI超大型積體電路設計實驗室', prereq: '普通物理 ➔ 電子學(一)(二) / 電磁學', courses: 'VLSI超大型積體電路設計、半導體元件物理、太陽能光電、有機光電技術、奈米電子元件', color: 'from-amber-500 to-orange-500' },
+      { group: '控制組', core: '自動控制', profs: '鄭慕德 教授、王榮華 教授、吳政郎 教授、梁添富 教授', labs: '智慧型控制與機器人實驗室、精密運動控制實驗室、微電腦控制與智慧系統實驗室', prereq: '微積分 ➔ 工程數學 / 線性代數 / 訊號與系統', courses: '數位控制系統、智慧型控制、機器人學、嵌入式系統、微處理機應用實務', color: 'from-emerald-500 to-teal-500' },
+      { group: '電力與電子電路組', core: '電機機械', profs: '卓大靖 教授、周孜燦 教授、盧晃瑩 教授', labs: '電力系統與智慧電網實驗室、電力電子與綠能轉換實驗室、電能轉換與馬達驅動實驗室', prereq: '電路學(一)(二) ➔ 電子學(一)(二)(三)', courses: '電力電子學、類比積體電路設計、電源管理IC、智慧電網與綠能電力系統', color: 'from-sky-500 to-blue-600' },
+      { group: '電波組', core: '複變函數', profs: '李聯旺 教授、曾敬翔 教授、張枝成 教授', labs: '高頻電磁與微波天線實驗室(微波暗室)、射頻電路與微波雷達實驗室、電磁理論實驗室', prereq: '微積分 / 工程數學 ➔ 電磁學 ➔ 電磁波', courses: '微波工程、天線設計與量測、射頻積體電路(RFIC)、電磁相容與高速訊號', color: 'from-purple-500 to-indigo-600' },
+      { group: '通訊與訊號處理組', core: '通訊工程', profs: '陳志成 教授、林士強 教授、張忠誠 教授', labs: '無線通訊與訊號處理實驗室、先進通訊系統與編碼實驗室、數位訊號與生醫訊號處理實驗室', prereq: '線性代數 / 機率學 ➔ 訊號與系統', courses: '數位通訊、數位訊號處理(DSP)、5G/6G非地面網路(NTN)、Polar編碼理論與生醫訊號', color: 'from-pink-500 to-rose-600' },
+      { group: '資訊科技組', core: '資料結構', profs: '謝易叡 教授、王智瑩 教授、黃培華 教授', labs: '智慧視覺與深度學習實驗室、行動計算與寬頻網路實驗室、數位系統架構實驗室', prereq: '程式設計 ➔ 交換電路與邏輯設計', courses: '演算法、計算機組織與結構、人工智慧與深度學習、機器視覺與FPGA數位系統', color: 'from-cyan-500 to-blue-500' }
     ];
 
     const CHAIR_SPEECHES = {
@@ -481,62 +843,62 @@
         sub: '系主任的話 · ee.ntou.edu.tw',
         text: '「在此謹代表本系全體師生，誠摯歡迎加入『海洋大學電機工程學系』大家庭！期盼往後的四年，成為同學們一生當中最美好的黃金時光，成為日後推動電機電子高科技產業不可或缺的推手！」'
       },
+      faculty: {
+        title: '譚仕煒 教授 兼系主任',
+        sub: '六大領域師資陣容與實驗室 (電機一館 & 二館)',
+        text: '「本系擁有堅強的六大領域師資陣容與先進實驗室！包含固態光電與VLSI、智慧機器人控制、綠能電力電子、微波天線暗室與RFIC、5G/6G衛星通訊與生醫訊號、以及AI電腦視覺實驗室。點擊右上角【師資陣容與實驗室】即可一覽所有教授專長！」'
+      },
       rules: {
         title: '譚仕煒 教授 兼系主任',
         sub: '113學年度必修科目表重點',
         text: '「本系畢業最低學分為 137 學分：包含共同教育 28 學分、系訂專業必修 67 學分、系訂必選修 15 學分（6 選 3 核心課 9 學分 + 對應領域指定選修 2 門 6 學分）及專業選修 27 學分。」'
       },
-      tracks: {
-        title: '譚仕煒 教授 兼系主任',
-        sub: '六大專業領域分流',
-        text: '「本系分為【固態電子】、【控制】、【電力與電子電路】、【電波】、【通訊與訊號處理】及【資訊科技】六大組別。大二下起即可透過『六選三核心課程』銜接大三下的專題研究！」'
-      },
       lab: {
         title: '譚仕煒 教授 兼系主任',
-        sub: '電機一館 602 室 · 分機 6200',
-        text: '「我是海大電機土生土長的博士與學長！我的研究專長為『太陽能光電、有機光電技術、奈米半導體之通訊元件』，隨時歡迎同學們來電機一館六樓 602 室找我討論修課與未來方向！」'
+        sub: '光電與奈米半導體元件實驗室 · 電機一館 602 室',
+        text: '「我本身也是海大電機學士、碩士與博士畢業的學長！我的實驗室主要研究『太陽能光電、有機光電技術、奈米半導體之通訊元件』，隨時歡迎同學們到電機一館六樓 602 室找我聊聊！」'
       }
     };
-    const speechKeys = ['welcome', 'rules', 'tracks', 'lab'];
+    const speechKeys = ['welcome', 'faculty', 'rules', 'lab'];
     let speechIdx = 0;
 
     /*************************************************************************
-     * 3. 平滑無抽動的島上學生 NPC (Waypoint 緩動與定點休息)
+     * 4. 3D 立體學生角色設定 (平滑 Waypoint 緩動，不抽動)
      *************************************************************************/
     const STUDENTS = [
-      { id: 's1', name: '大一阿海', grade: '大一', color: '#10b981', homeX: -360, homeY: 175, bubble: '邏輯設計實驗用 Verilog 跑通了！', talk: '大一上就有程式設計實習跟交換電路與邏輯設計實驗，動手實作數位電路超有成就感！' },
-      { id: 's2', name: '大一婷婷', grade: '大一', color: '#10b981', homeX: -300, homeY: 115, bubble: '一下有電路學(一)跟微處理機實驗', talk: '必修科目表規定「電路學一下、二上需依序修習」，而且大一還有必修人工智慧概論與海洋科學概論喔！' },
-      { id: 's3', name: '大一冠宇', grade: '大一', color: '#10b981', homeX: -420, homeY: 120, bubble: '英檢中高級可以抵免大一英文！', talk: '全民英檢中高級初試通過可抵免大一英文 2 學分，複試通過可抵免 4 學分，記得先看必修科目表備註！' },
+      { id: 's1', name: '大一阿海', grade: '大一', color: '#10b981', darkColor: '#047857', homeX: -360, homeY: 185, bubble: '邏輯設計實驗用 Verilog 跑通了！', talk: '大一上就有程式設計實習跟交換電路與邏輯設計實驗，動手實作數位電路超有成就感！' },
+      { id: 's2', name: '大一婷婷', grade: '大一', color: '#10b981', darkColor: '#047857', homeX: -290, homeY: 120, bubble: '一下有電路學(一)跟微處理機實驗', talk: '必修科目表規定「電路學一下、二上需依序修習」，而且大一還有必修人工智慧概論與海洋科學概論喔！' },
+      { id: 's3', name: '大一冠宇', grade: '大一', color: '#10b981', darkColor: '#047857', homeX: -435, homeY: 135, bubble: '英檢中高級可以抵免大一英文！', talk: '全民英檢中高級初試通過可抵免大一英文 2 學分，複試通過可抵免 4 學分，記得先看必修科目表備註！' },
 
-      { id: 's4', name: '大二宗翰', grade: '大二', color: '#0ea5e9', homeX: -225, homeY: -105, bubble: '二上三電一工＋線代真的超充實⚡', talk: '大二同時修電路學(二)、電子學(一)、電磁學、工數(Ⅱ)跟線性代數，把整個電機系的底子打得超穩！' },
-      { id: 's5', name: '大二雅筑', grade: '大二', color: '#0ea5e9', homeX: -160, homeY: -175, bubble: '二下訊號與系統配機率學！', talk: '想走通訊與訊號處理組的話，二下的「機率學」與「訊號與系統」絕對要認真修！' },
-      { id: 's6', name: '大二柏叡', grade: '大二', color: '#0ea5e9', homeX: -270, homeY: -165, bubble: '準備大二下開始修六選三核心課～', talk: '六選三核心課從大二下到大三下每學期排 3 學分，我打算選「資料結構」、「自動控制」跟「通訊工程」！' },
+      { id: 's4', name: '大二宗翰', grade: '大二', color: '#0ea5e9', darkColor: '#0369a1', homeX: -225, homeY: -90, bubble: '二上三電一工＋線代真的超充實⚡', talk: '大二同時修電路學(二)、電子學(一)、電磁學、工數(Ⅱ)跟線性代數，把整個電機系的底子打得超穩！' },
+      { id: 's5', name: '大二雅筑', grade: '大二', color: '#0ea5e9', darkColor: '#0369a1', homeX: -145, homeY: -175, bubble: '二下訊號與系統配機率學！', talk: '想進陳志成老師、林士強老師或張忠誠老師的通訊與訊號處理實驗室，二下的「機率學」與「訊號與系統」一定要認真修！' },
+      { id: 's6', name: '大二柏叡', grade: '大二', color: '#0ea5e9', darkColor: '#0369a1', homeX: -285, homeY: -165, bubble: '準備大二下開始修六選三核心課～', talk: '六選三核心課從大二下到大三下每學期排 3 學分，我打算選「資料結構」、「自動控制」跟「通訊工程」！' },
 
-      { id: 's7', name: '大三哲偉', grade: '大三', color: '#f59e0b', homeX: 215, homeY: -105, bubble: '半導體物理配譚主任的光電課超讚', talk: '修完六選三的「半導體物理」再聽譚仕煒主任的光電與半導體元件課，對固態電子領域完全貫通！' },
-      { id: 's8', name: '大三品妤', grade: '大三', color: '#f59e0b', homeX: 365, homeY: 165, bubble: '三下進實驗室做專題研究(Ⅰ)🔬', talk: '大三上修完電子學(三)，大三下就有必修「專題研究(Ⅰ)」(2學分)，正式進入指導教授實驗室做研究！' },
-      { id: 's9', name: '大三宇軒', grade: '大三', color: '#f59e0b', homeX: 260, homeY: -175, bubble: '日文最多4學分可算系訂專業選修！', talk: '必修科目表有一個超實用規定：「日文」(最多 4 學分) 可以作為電機系訂專業選修課程認列喔！' },
+      { id: 's7', name: '大三哲偉', grade: '大三', color: '#f59e0b', darkColor: '#b45309', homeX: 215, homeY: -90, bubble: '半導體物理配譚主任的光電實驗室！', talk: '修完六選三的「半導體物理」再加入譚仕煒主任或林正軒、黃培華老師的固態/VLSI實驗室，對半導體產業超有幫助！' },
+      { id: 's8', name: '大三品妤', grade: '大三', color: '#f59e0b', darkColor: '#b45309', homeX: 375, homeY: 175, bubble: '三下進實驗室做專題研究(Ⅰ)🔬', talk: '大三下必修「專題研究(Ⅰ)」(2學分)，可以選固態、控制、電力電子、微波天線、5G通訊或AI電腦視覺實驗室！' },
+      { id: 's9', name: '大三宇軒', grade: '大三', color: '#f59e0b', darkColor: '#b45309', homeX: 275, homeY: -175, bubble: '微波暗室與RFIC實驗室超酷📡', talk: '電波組有李聯旺老師、曾敬翔老師與張枝成老師，電機二館還有專業微波暗室可以量測天線與射頻電路！' },
 
-      { id: 's10', name: '大四學長阿育', grade: '大四', color: '#c084fc', homeX: 165, homeY: 270, bubble: '專題研究(Ⅱ)模擬與硬體實測收斂🚀', talk: '大四上完成「專題研究(Ⅱ)」成果發表，搭配 27 學分專業選修，推甄研究所或進科技業都超有競爭力！' },
-      { id: 's11', name: '大四學姐筱涵', grade: '大四', color: '#c084fc', homeX: 105, homeY: 215, bubble: '137 畢業學分達成！準備畢業🎓', talk: '提醒學弟妹：必選修 15 學分包含「6選3核心課(9學分)」加上「2門對應領域指定課程(6學分)」喔！' },
-      { id: 's12', name: '大四學姐芷若', grade: '大四', color: '#c084fc', homeX: -145, homeY: 270, bubble: '博雅記得修滿跨域永續至少2學分🌊', talk: '14 學分的博雅課程涵蓋四大子領域，其中「跨域永續」至少要修 2 學分，各領域至多認列 4 學分！' }
+      { id: 's10', name: '大四學長阿育', grade: '大四', color: '#c084fc', darkColor: '#7e22ce', homeX: 165, homeY: 280, bubble: '5G NTN Polar Codes 專題模擬收斂🚀', talk: '大四上完成「專題研究(Ⅱ)」成果發表，搭配 27 學分專業選修，推甄研究所或進 IC 設計大廠都超有底氣！' },
+      { id: 's11', name: '大四學姐筱涵', grade: '大四', color: '#c084fc', darkColor: '#7e22ce', homeX: 95, homeY: 225, bubble: '137 畢業學分達成！準備畢業🎓', talk: '提醒學弟妹：必選修 15 學分包含「6選3核心課(9學分)」加上「2門對應領域指定課程(6學分)」喔！' },
+      { id: 's12', name: '大四學姐芷若', grade: '大四', color: '#c084fc', darkColor: '#7e22ce', homeX: -145, homeY: 280, bubble: '博雅記得修滿跨域永續至少2學分🌊', talk: '14 學分的博雅課程涵蓋四大子領域，其中「跨域永續」至少要修 2 學分，各領域至多認列 4 學分！' }
     ].map((s, idx) => ({
       ...s,
       x: s.homeX,
       y: s.homeY,
       targetX: s.homeX + Math.cos(idx) * 24,
-      targetY: s.homeY + Math.sin(idx) * 18,
+      targetY: s.homeY + Math.sin(idx) * 16,
       waitTimer: idx * 35,
       stepPhase: idx * 1.3,
       isMoving: false
     }));
 
     /*************************************************************************
-     * 4. 2.5D 島嶼渲染引擎
+     * 5. 全 3D 立體等距渲染引擎 (True 3D Isometric Voxel & Extrusion Engine)
      *************************************************************************/
     const canvas = document.getElementById('islandCanvas');
     const ctx = canvas.getContext('2d');
 
-    let camera = { x: 0, y: 15, zoom: 1.0, targetX: 0, targetY: 15, targetZoom: 1.0 };
+    let camera = { x: 0, y: 10, zoom: 1.0, targetX: 0, targetY: 10, targetZoom: 1.0 };
     let isDragging = false;
     let dragMoved = false;
     let dragOrigin = { x: 0, y: 0 };
@@ -549,23 +911,37 @@
 
     const player = {
       x: -55,
-      y: 75,
+      y: 80,
       targetX: -55,
-      targetY: 75,
+      targetY: 80,
       stepPhase: 0,
       isMoving: false
     };
 
     const chairNPC = {
       x: 0,
-      y: -10,
-      radius: 46
+      y: -12,
+      radius: 50
     };
 
+    // 島上點綴的 3D 立體樹木與科技燈柱座標
+    const ISLAND_TREES = [
+      { x: -465, y: 35, scale: 1.0 },
+      { x: -330, y: -35, scale: 0.9 },
+      { x: -75, y: -215, scale: 1.05 },
+      { x: 75, y: -215, scale: 0.95 },
+      { x: 345, y: -45, scale: 1.1 },
+      { x: 465, y: 35, scale: 0.95 },
+      { x: 285, y: 225, scale: 1.0 },
+      { x: -285, y: 225, scale: 1.05 },
+      { x: -120, y: 95, scale: 0.85 },
+      { x: 125, y: 95, scale: 0.85 }
+    ];
+
     const ripples = [];
-    const sparkles = Array.from({ length: 28 }, () => ({
-      x: (Math.random() - 0.5) * 1200,
-      y: (Math.random() - 0.5) * 700,
+    const sparkles = Array.from({ length: 32 }, () => ({
+      x: (Math.random() - 0.5) * 1300,
+      y: (Math.random() - 0.5) * 760,
       size: 1.5 + Math.random() * 2.5,
       phase: Math.random() * Math.PI * 2
     }));
@@ -601,7 +977,6 @@
 
     window.addEventListener('mousemove', e => {
       const wp = screenToWorld(e.clientX, e.clientY);
-
       if (isDragging) {
         const dx = e.clientX - dragOrigin.x;
         const dy = e.clientY - dragOrigin.y;
@@ -610,7 +985,6 @@
         camera.targetY = camOrigin.y - dy / camera.zoom;
         return;
       }
-
       hoveredObj = pickEntity(wp.x, wp.y);
     });
 
@@ -635,24 +1009,24 @@
 
     function resetView() {
       camera.targetX = 0;
-      camera.targetY = 15;
+      camera.targetY = 10;
       camera.targetZoom = 1.0;
       activeZoneId = null;
       closeZoneDrawer();
     }
 
     function pickEntity(wx, wy) {
-      if (Math.hypot(wx - chairNPC.x, wy - chairNPC.y) < 54) {
+      if (Math.hypot(wx - chairNPC.x, wy - (chairNPC.y - 18)) < 58) {
         return { type: 'chair', data: chairNPC };
       }
       for (const s of STUDENTS) {
         if (gradeFilter !== 'ALL' && s.grade !== gradeFilter) continue;
-        if (Math.hypot(wx - s.x, wy - s.y) < 26) {
+        if (Math.hypot(wx - s.x, wy - (s.y - 12)) < 28) {
           return { type: 'student', data: s };
         }
       }
       for (const z of ISLAND_ZONES) {
-        if (Math.hypot(wx - z.x, wy - z.y) < 76) {
+        if (Math.hypot(wx - z.x, wy - (z.y - z.h * 0.4)) < 85) {
           return { type: 'zone', data: z };
         }
       }
@@ -660,22 +1034,22 @@
     }
 
     function onIslandClick(wx, wy) {
-      ripples.push({ x: wx, y: wy, r: 4, maxR: 58, alpha: 0.9, color: '#38bdf8' });
+      ripples.push({ x: wx, y: wy, r: 4, maxR: 62, alpha: 0.95, color: '#38bdf8' });
 
-      player.targetX = Math.max(-520, Math.min(520, wx));
-      player.targetY = Math.max(-260, Math.min(290, wy));
+      player.targetX = Math.max(-510, Math.min(510, wx));
+      player.targetY = Math.max(-250, Math.min(280, wy));
 
       const hit = pickEntity(wx, wy);
       if (!hit) return;
 
       if (hit.type === 'chair') {
-        ripples.push({ x: chairNPC.x, y: chairNPC.y, r: 10, maxR: 95, alpha: 1, color: '#fbbf24' });
+        ripples.push({ x: chairNPC.x, y: chairNPC.y, r: 10, maxR: 100, alpha: 1, color: '#fbbf24' });
         cycleChairSpeech();
       } else if (hit.type === 'student') {
         const st = hit.data;
-        ripples.push({ x: st.x, y: st.y, r: 6, maxR: 60, alpha: 1, color: st.color });
+        ripples.push({ x: st.x, y: st.y, r: 6, maxR: 64, alpha: 1, color: st.color });
         document.getElementById('speakerTitle').textContent = `${st.name}（${st.grade}學長姐分享）`;
-        document.getElementById('speakerSubtitle').textContent = `海大電機 · ${st.grade}真實修課攻略`;
+        document.getElementById('speakerSubtitle').textContent = `海大電機 · ${st.grade}修課與實驗室心得`;
         document.getElementById('speakerText').textContent = `「${st.talk}」`;
       } else if (hit.type === 'zone') {
         openZoneDrawer(hit.data.id);
@@ -692,11 +1066,103 @@
       c.closePath();
     }
 
+    // 繪製真實 3D 等距六面體方塊 (Isometric 3D Block Helper)
+    function drawIso3DBlock(x, y, w, d, h, topCol, leftCol, rightCol, strokeCol) {
+      const hw = w / 2;
+      const hd = d / 2;
+
+      // 頂面四個頂點 (菱形等距投影)
+      const topP = { x: x, y: y - h - hd };
+      const rightP = { x: x + hw, y: y - h };
+      const botP = { x: x, y: y - h + hd };
+      const leftP = { x: x - hw, y: y - h };
+
+      // 左前立體牆面
+      ctx.fillStyle = leftCol;
+      ctx.beginPath();
+      ctx.moveTo(leftP.x, leftP.y);
+      ctx.lineTo(botP.x, botP.y);
+      ctx.lineTo(botP.x, botP.y + h);
+      ctx.lineTo(leftP.x, leftP.y + h);
+      ctx.closePath();
+      ctx.fill();
+      if (strokeCol) {
+        ctx.strokeStyle = strokeCol;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+
+      // 右前立體牆面 (受光較暗面，營造強烈 3D 立體感)
+      ctx.fillStyle = rightCol;
+      ctx.beginPath();
+      ctx.moveTo(botP.x, botP.y);
+      ctx.lineTo(rightP.x, rightP.y);
+      ctx.lineTo(rightP.x, rightP.y + h);
+      ctx.lineTo(botP.x, botP.y + h);
+      ctx.closePath();
+      ctx.fill();
+      if (strokeCol) {
+        ctx.strokeStyle = strokeCol;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+
+      // 頂面
+      ctx.fillStyle = topCol;
+      ctx.beginPath();
+      ctx.moveTo(topP.x, topP.y);
+      ctx.lineTo(rightP.x, rightP.y);
+      ctx.lineTo(botP.x, botP.y);
+      ctx.lineTo(leftP.x, leftP.y);
+      ctx.closePath();
+      ctx.fill();
+      if (strokeCol) {
+        ctx.strokeStyle = strokeCol;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    // 繪製 3D 圓柱體 (3D Cylinder Helper，用於塔樓、獎座與小人立體身體)
+    function draw3DCylinder(x, y, rx, ry, h, topCol, sideColLight, sideColDark, borderCol) {
+      // 柱身側邊漸層
+      const grad = ctx.createLinearGradient(x - rx, y - h, x + rx, y);
+      grad.addColorStop(0, sideColLight);
+      grad.addColorStop(0.55, sideColLight);
+      grad.addColorStop(1, sideColDark);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(x - rx, y - h);
+      ctx.lineTo(x - rx, y);
+      ctx.ellipse(x, y, rx, ry, 0, Math.PI, 0, true);
+      ctx.lineTo(x + rx, y - h);
+      ctx.closePath();
+      ctx.fill();
+
+      if (borderCol) {
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // 柱頂橢圓面
+      ctx.fillStyle = topCol;
+      ctx.beginPath();
+      ctx.ellipse(x, y - h, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+      if (borderCol) {
+        ctx.strokeStyle = borderCol;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
     let timeTick = 0;
     function animateLoop() {
       timeTick += 0.02;
       updateSimulation();
-      renderIsland();
+      render3DWorld();
       requestAnimationFrame(animateLoop);
     }
 
@@ -712,8 +1178,8 @@
       if (keys['d'] || keys['arrowright']) kdx += 3.4;
 
       if (kdx !== 0 || kdy !== 0) {
-        player.x = Math.max(-520, Math.min(520, player.x + kdx));
-        player.y = Math.max(-260, Math.min(290, player.y + kdy));
+        player.x = Math.max(-510, Math.min(510, player.x + kdx));
+        player.y = Math.max(-250, Math.min(280, player.y + kdy));
         player.targetX = player.x;
         player.targetY = player.y;
         player.isMoving = true;
@@ -743,9 +1209,9 @@
           if (s.waitTimer > 180) {
             s.waitTimer = 0;
             const angle = Math.random() * Math.PI * 2;
-            const rad = 16 + Math.random() * 24;
+            const rad = 16 + Math.random() * 22;
             s.targetX = s.homeX + Math.cos(angle) * rad;
-            s.targetY = s.homeY + Math.sin(angle) * (rad * 0.7);
+            s.targetY = s.homeY + Math.sin(angle) * (rad * 0.65);
           }
         }
       }
@@ -758,7 +1224,7 @@
       }
     }
 
-    function renderIsland() {
+    function render3DWorld() {
       const W = window.innerWidth;
       const H = window.innerHeight;
 
@@ -780,30 +1246,46 @@
       ctx.scale(camera.zoom, camera.zoom);
       ctx.translate(-camera.x, -camera.y);
 
-      drawOceanAmbience();
-      drawLayeredIsland();
-      drawEnergyCircuitNetwork();
+      // 1. 3D 海洋、遠方立體基隆嶼與 3D 巡航船
+      draw3DOceanAndShip();
 
-      for (const zone of ISLAND_ZONES) {
-        drawIsometricBuilding(zone);
-      }
+      // 2. 3D 多層次立體島嶼地形 (具備厚實 3D 懸崖切面與立體沙灘階梯)
+      draw3DIslandTerrain();
 
-      drawChairCenterpiece();
+      // 3. 3D 立體光纖電路軌道
+      draw3DCircuitTracks();
 
-      for (const s of STUDENTS) {
-        if (gradeFilter !== 'ALL' && s.grade !== gradeFilter) continue;
-        drawSmoothStudent(s);
-      }
+      // 4. 依 Y 座標進行 3D 深度排序 (Painter's Algorithm Depth Sorting)，確保前後遮擋完全真實立體
+      const renderQueue = [];
 
-      drawPlayerCharacter();
+      ISLAND_TREES.forEach(t => {
+        renderQueue.push({ y: t.y, draw: () => draw3DPineTree(t.x, t.y, t.scale) });
+      });
 
+      ISLAND_ZONES.forEach(z => {
+        renderQueue.push({ y: z.y, draw: () => draw3DDepartmentBuilding(z) });
+      });
+
+      renderQueue.push({ y: chairNPC.y, draw: () => draw3DChairMonument() });
+
+      STUDENTS.forEach(s => {
+        if (gradeFilter !== 'ALL' && s.grade !== gradeFilter) return;
+        renderQueue.push({ y: s.y, draw: () => draw3DStudentVoxel(s) });
+      });
+
+      renderQueue.push({ y: player.y, draw: () => draw3DPlayerVoxel() });
+
+      renderQueue.sort((a, b) => a.y - b.y);
+      renderQueue.forEach(item => item.draw());
+
+      // 5. 點擊水波紋
       for (const rp of ripples) {
         ctx.save();
         ctx.strokeStyle = rp.color;
         ctx.globalAlpha = rp.alpha;
         ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.ellipse(rp.x, rp.y, rp.r, rp.r * 0.6, 0, 0, Math.PI * 2);
+        ctx.ellipse(rp.x, rp.y, rp.r, rp.r * 0.55, 0, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
@@ -811,7 +1293,7 @@
       ctx.restore();
     }
 
-    function drawOceanAmbience() {
+    function draw3DOceanAndShip() {
       ctx.save();
       for (const sp of sparkles) {
         const a = 0.25 + (Math.sin(timeTick * 2 + sp.phase) + 1) * 0.25;
@@ -821,385 +1303,530 @@
         ctx.fill();
       }
 
-      ctx.fillStyle = isNight ? 'rgba(15, 23, 42, 0.7)' : 'rgba(7, 89, 133, 0.45)';
+      // 遠方 3D 多邊形立體基隆嶼 (亮面與暗面立體稜線)
+      ctx.fillStyle = isNight ? '#0f172a' : '#0369a1';
       ctx.beginPath();
-      ctx.moveTo(-660, -310);
-      ctx.quadraticCurveTo(-580, -395, -500, -310);
+      ctx.moveTo(-680, -310);
+      ctx.lineTo(-590, -395);
+      ctx.lineTo(-590, -310);
       ctx.closePath();
       ctx.fill();
 
-      const shipAngle = timeTick * 0.12;
-      const sx = Math.cos(shipAngle) * 650;
-      const sy = Math.sin(shipAngle) * 375;
-      ctx.save();
-      ctx.translate(sx, sy);
-      ctx.fillStyle = 'rgba(255,255,255,0.22)';
+      ctx.fillStyle = isNight ? '#020617' : '#075985';
       ctx.beginPath();
-      ctx.ellipse(0, 6, 26, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.moveTo(-18, 0);
-      ctx.lineTo(18, 0);
-      ctx.lineTo(12, 8);
-      ctx.lineTo(-12, 8);
+      ctx.moveTo(-590, -395);
+      ctx.lineTo(-495, -310);
+      ctx.lineTo(-590, -310);
       ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(-7, -7, 14, 7);
+
+      // 3D 立體海大實習船
+      const shipAngle = timeTick * 0.12;
+      const sx = Math.cos(shipAngle) * 650;
+      const sy = Math.sin(shipAngle) * 370;
+      ctx.save();
+      ctx.translate(sx, sy);
+      // 船底水花
+      ctx.fillStyle = 'rgba(255,255,255,0.28)';
+      ctx.beginPath();
+      ctx.ellipse(0, 8, 30, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // 3D 船體
+      drawIso3DBlock(0, 4, 34, 16, 8, '#f8fafc', '#e2e8f0', '#94a3b8', '#0284c7');
+      drawIso3DBlock(0, -4, 18, 10, 7, '#fbbf24', '#f59e0b', '#b45309');
       ctx.restore();
 
       ctx.restore();
     }
 
-    function drawLayeredIsland() {
+    function draw3DIslandTerrain() {
       ctx.save();
 
-      // 修正：原本少空白的變數宣告
+      // 外海淺灘珊瑚光圈
       const lagoonPulse = Math.sin(timeTick * 1.2) * 5;
       ctx.fillStyle = isNight ? 'rgba(14, 165, 233, 0.16)' : 'rgba(125, 211, 252, 0.45)';
       ctx.beginPath();
-      ctx.ellipse(0, 22, 595 + lagoonPulse, 340 + lagoonPulse * 0.6, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 32, 605 + lagoonPulse, 345 + lagoonPulse * 0.6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 3D 岩岸立體底座
-      ctx.fillStyle = isNight ? '#1e293b' : '#b45309';
+      // === 第一層 3D 結構：深海玄武岩基底立體厚度 (高 28px 的 3D 岩壁) ===
+      const rockGrad = ctx.createLinearGradient(-560, 0, 560, 0);
+      rockGrad.addColorStop(0, isNight ? '#1e293b' : '#78350f');
+      rockGrad.addColorStop(0.5, isNight ? '#0f172a' : '#92400e');
+      rockGrad.addColorStop(1, isNight ? '#020617' : '#451a03');
+      ctx.fillStyle = rockGrad;
       ctx.beginPath();
-      ctx.ellipse(0, 38, 555, 312, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 48, 565, 315, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 黃金海岸沙灘
-      ctx.fillStyle = isNight ? '#451a03' : '#fde68a';
+      // === 第二層 3D 結構：黃金海岸沙灘立體階梯 (高 14px) ===
+      ctx.fillStyle = isNight ? '#78350f' : '#d97706';
       ctx.beginPath();
-      ctx.ellipse(0, 22, 555, 310, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 30, 565, 312, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 翠綠立體草地島嶼主體
-      const grassGrad = ctx.createRadialGradient(-60, -40, 40, 0, 20, 540);
+      ctx.fillStyle = isNight ? '#92400e' : '#fde68a';
+      ctx.beginPath();
+      ctx.ellipse(0, 20, 560, 308, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // === 第三層 3D 結構：主島翠綠科技高台厚度切面 (高 18px 的立體草坡邊緣) ===
+      const cliffGrad = ctx.createLinearGradient(-520, 0, 520, 0);
+      cliffGrad.addColorStop(0, isNight ? '#065f46' : '#059669');
+      cliffGrad.addColorStop(0.5, isNight ? '#047857' : '#047857');
+      cliffGrad.addColorStop(1, isNight ? '#022c22' : '#064e3b');
+      ctx.fillStyle = cliffGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 22, 525, 286, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 主島頂部草地平台
+      const grassGrad = ctx.createRadialGradient(-80, -60, 40, 0, 10, 530);
       if (isNight) {
-        grassGrad.addColorStop(0, '#065f46');
-        grassGrad.addColorStop(0.65, '#064e3b');
-        grassGrad.addColorStop(1, '#022c22');
+        grassGrad.addColorStop(0, '#047857');
+        grassGrad.addColorStop(0.65, '#065f46');
+        grassGrad.addColorStop(1, '#064e3b');
       } else {
         grassGrad.addColorStop(0, '#6ee7b7');
         grassGrad.addColorStop(0.55, '#10b981');
-        grassGrad.addColorStop(1, '#047857');
+        grassGrad.addColorStop(1, '#059669');
       }
       ctx.fillStyle = grassGrad;
       ctx.beginPath();
-      ctx.ellipse(0, 18, 520, 286, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 6, 522, 282, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 中央「海大電機廣場」圓環舞台
-      ctx.fillStyle = isNight ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.94)';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 130, 88, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = isNight ? '#38bdf8' : '#0284c7';
-      ctx.stroke();
+      // === 第四層 3D 結構：中央「海大電機廣場」雙層立體圓柱舞台 ===
+      draw3DCylinder(0, 8, 138, 88, 10,
+        isNight ? '#1e293b' : '#e2e8f0',
+        isNight ? '#334155' : '#cbd5e1',
+        isNight ? '#0f172a' : '#64748b',
+        '#38bdf8'
+      );
 
-      // 中央廣場正版海大校徽浮水印
+      draw3DCylinder(0, -2, 112, 72, 6,
+        isNight ? '#0f172a' : '#ffffff',
+        isNight ? '#1e293b' : '#f1f5f9',
+        isNight ? '#020617' : '#94a3b8',
+        '#fbbf24'
+      );
+
+      // 中央 3D 舞台上的正版海大校徽立體地雕
       if (ntouLogoImg.complete && ntouLogoImg.naturalWidth > 0) {
         ctx.save();
-        ctx.globalAlpha = isNight ? 0.16 : 0.14;
+        ctx.globalAlpha = isNight ? 0.22 : 0.16;
         ctx.beginPath();
-        ctx.arc(0, 5, 58, 0, Math.PI * 2);
+        ctx.ellipse(0, -8, 62, 42, 0, 0, Math.PI * 2);
         ctx.clip();
-        ctx.drawImage(ntouLogoImg, -58, -53, 116, 116);
+        ctx.drawImage(ntouLogoImg, -62, -55, 124, 94);
         ctx.restore();
       }
 
       ctx.restore();
     }
 
-    function drawEnergyCircuitNetwork() {
+    function draw3DPineTree(x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      // 樹影
+      ctx.fillStyle = 'rgba(0, 15, 30, 0.28)';
+      ctx.beginPath();
+      ctx.ellipse(4, 3, 14, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 3D 樹幹圓柱
+      draw3DCylinder(0, 0, 4, 2.5, 10, '#92400e', '#b45309', '#451a03');
+
+      // 三層 3D 低多邊形立體樹冠 (分左右明暗面)
+      const layers = [
+        { baseH: -8, topH: -26, w: 16 },
+        { baseH: -18, topH: -36, w: 13 },
+        { baseH: -28, topH: -45, w: 9 }
+      ];
+      layers.forEach(L => {
+        // 左亮面
+        ctx.fillStyle = isNight ? '#059669' : '#34d399';
+        ctx.beginPath();
+        ctx.moveTo(0, L.topH);
+        ctx.lineTo(-L.w, L.baseH);
+        ctx.lineTo(0, L.baseH + 4);
+        ctx.closePath();
+        ctx.fill();
+
+        // 右暗面
+        ctx.fillStyle = isNight ? '#064e3b' : '#059669';
+        ctx.beginPath();
+        ctx.moveTo(0, L.topH);
+        ctx.lineTo(0, L.baseH + 4);
+        ctx.lineTo(L.w, L.baseH);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      ctx.restore();
+    }
+
+    function draw3DCircuitTracks() {
       ctx.save();
       for (const z of ISLAND_ZONES) {
         const isHighlighted = (hoveredObj && hoveredObj.type === 'zone' && hoveredObj.data.id === z.id) || activeZoneId === z.id;
 
-        ctx.strokeStyle = isHighlighted
-          ? '#fbbf24'
-          : (isNight ? 'rgba(56, 189, 248, 0.38)' : 'rgba(255, 255, 255, 0.75)');
-        ctx.lineWidth = isHighlighted ? 7 : 5;
-        ctx.lineCap = 'round';
-
-        ctx.beginPath();
-        ctx.moveTo(chairNPC.x, chairNPC.y + 10);
         const cx = (chairNPC.x + z.x) * 0.5;
-        const cy = (chairNPC.y + z.y) * 0.5 - 18;
-        ctx.quadraticCurveTo(cx, cy, z.x, z.y + 15);
+        const cy = (chairNPC.y + z.y) * 0.5 - 16;
+
+        // 3D 軌道底層厚陰影
+        ctx.strokeStyle = 'rgba(0, 15, 30, 0.35)';
+        ctx.lineWidth = isHighlighted ? 11 : 8;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(chairNPC.x, chairNPC.y + 4);
+        ctx.quadraticCurveTo(cx, cy + 4, z.x, z.y + 4);
         ctx.stroke();
 
-        const t = (timeTick * (isHighlighted ? 0.8 : 0.45)) % 1;
-        const qx = (1 - t) * (1 - t) * chairNPC.x + 2 * (1 - t) * t * cx + t * t * z.x;
-        const qy = (1 - t) * (1 - t) * (chairNPC.y + 10) + 2 * (1 - t) * t * cy + t * t * (z.y + 15);
-
-        ctx.fillStyle = isHighlighted ? '#fde047' : z.accent;
+        // 3D 軌道頂面發光線
+        ctx.strokeStyle = isHighlighted
+          ? '#fbbf24'
+          : (isNight ? 'rgba(56, 189, 248, 0.48)' : 'rgba(255, 255, 255, 0.85)');
+        ctx.lineWidth = isHighlighted ? 7 : 5;
         ctx.beginPath();
-        ctx.arc(qx, qy, isHighlighted ? 6 : 4.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo(chairNPC.x, chairNPC.y);
+        ctx.quadraticCurveTo(cx, cy, z.x, z.y);
+        ctx.stroke();
+
+        // 3D 立體能量光球沿軌道飛行
+        const t = (timeTick * (isHighlighted ? 0.85 : 0.45)) % 1;
+        const qx = (1 - t) * (1 - t) * chairNPC.x + 2 * (1 - t) * t * cx + t * t * z.x;
+        const qy = (1 - t) * (1 - t) * chairNPC.y + 2 * (1 - t) * t * cy + t * t * z.y;
+
+        draw3DCylinder(qx, qy, isHighlighted ? 6 : 4.5, isHighlighted ? 4 : 3, 5, '#fef08a', '#fbbf24', '#d97706');
       }
       ctx.restore();
     }
 
-    function drawIsometricBuilding(z) {
+    // 繪製全 3D 等距立體系館大樓 (含多層玻璃帷幕、3D 屋頂機房與懸浮旋轉地標)
+    function draw3DDepartmentBuilding(z) {
       ctx.save();
       ctx.translate(z.x, z.y);
 
       const isHovered = hoveredObj && hoveredObj.type === 'zone' && hoveredObj.data.id === z.id;
       const isSelected = activeZoneId === z.id;
-      const liftY = (isHovered || isSelected) ? -7 : 0;
+      const liftY = (isHovered || isSelected) ? -10 : 0;
 
-      ctx.fillStyle = 'rgba(0, 15, 35, 0.28)';
+      // 1. 地面真實 3D 菱形投影陰影
+      ctx.fillStyle = 'rgba(0, 12, 28, 0.35)';
       ctx.beginPath();
-      ctx.ellipse(0, 32, 68, 30, 0, 0, Math.PI * 2);
+      ctx.ellipse(8, 10, z.w * 0.65, z.d * 0.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
+      // 懸停時的 3D 立體光環底座
       if (isHovered || isSelected) {
         ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.ellipse(0, 30, 76, 36, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 4, z.w * 0.72, z.d * 0.54, 0, 0, Math.PI * 2);
         ctx.stroke();
       }
 
       ctx.translate(0, liftY);
 
-      ctx.fillStyle = isNight ? '#0f172a' : '#cbd5e1';
-      roundRectPath(ctx, -54, -22, 108, 52, 14);
-      ctx.fill();
+      // 2. 建築底部 3D 花崗岩基座平台
+      drawIso3DBlock(0, 6, z.w + 18, z.d + 14, 10,
+        isNight ? '#334155' : '#f1f5f9',
+        isNight ? '#1e293b' : '#cbd5e1',
+        isNight ? '#0f172a' : '#94a3b8',
+        z.accent
+      );
 
-      ctx.fillStyle = isNight ? '#1e293b' : z.wall;
-      roundRectPath(ctx, -54, -30, 108, 48, 14);
-      ctx.fill();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = z.accent;
-      ctx.stroke();
+      // 3. 主大樓 3D 六面體結構
+      const mainTop = isNight ? '#1e293b' : '#ffffff';
+      const mainLeft = isNight ? '#0f172a' : '#f8fafc';
+      const mainRight = isNight ? '#020617' : '#cbd5e1';
+      drawIso3DBlock(0, -4, z.w, z.d, z.h, mainTop, mainLeft, mainRight, z.accent);
 
-      ctx.fillStyle = z.roof;
-      roundRectPath(ctx, -60, -46, 120, 24, 11);
-      ctx.fill();
+      // 4. 在左前與右前 3D 斜牆面上繪製等距透視發光玻璃帷幕窗格
+      const hw = z.w / 2;
+      const hd = z.d / 2;
+      for (let f = 0; f < z.floors; f++) {
+        const floorY = -12 - f * 15;
+        // 左側面三扇透視窗
+        for (let c = 0; c < 3; c++) {
+          const t1 = 0.18 + c * 0.25;
+          const t2 = t1 + 0.16;
+          const wx1 = -hw * (1 - t1);
+          const wy1 = floorY - hd * (1 - t1);
+          const wx2 = -hw * (1 - t2);
+          const wy2 = floorY - hd * (1 - t2);
 
-      for (let wx = -34; wx <= 22; wx += 22) {
-        ctx.fillStyle = isNight ? '#38bdf8' : '#7dd3fc';
-        roundRectPath(ctx, wx, -14, 13, 15, 3);
-        ctx.fill();
+          ctx.fillStyle = isNight ? '#38bdf8' : z.leftColor;
+          ctx.beginPath();
+          ctx.moveTo(wx1, wy1);
+          ctx.lineTo(wx2, wy2);
+          ctx.lineTo(wx2, wy2 - 8);
+          ctx.lineTo(wx1, wy1 - 8);
+          ctx.closePath();
+          ctx.fill();
+        }
+        // 右側面三扇透視窗 (暗面色調)
+        for (let c = 0; c < 3; c++) {
+          const t1 = 0.18 + c * 0.25;
+          const t2 = t1 + 0.16;
+          const wx1 = hw * t1;
+          const wy1 = floorY - hd * t1;
+          const wx2 = hw * t2;
+          const wy2 = floorY - hd * t2;
+
+          ctx.fillStyle = isNight ? '#0284c7' : z.rightColor;
+          ctx.beginPath();
+          ctx.moveTo(wx1, wy1);
+          ctx.lineTo(wx2, wy2);
+          ctx.lineTo(wx2, wy2 - 8);
+          ctx.lineTo(wx1, wy1 - 8);
+          ctx.closePath();
+          ctx.fill();
+        }
       }
 
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(0, -42, 17, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = z.accent;
-      ctx.stroke();
+      // 5. 屋頂第二層 3D 科技彩色冠頂層
+      drawIso3DBlock(0, -4 - z.h, z.w + 6, z.d + 4, 12,
+        z.topColor,
+        z.leftColor,
+        z.rightColor,
+        '#ffffff'
+      );
+
+      // 6. 屋頂中央 3D 圓柱全息發射台 + 懸浮旋轉徽章
+      const roofTopY = -16 - z.h;
+      draw3DCylinder(0, roofTopY, 20, 12, 9, '#f8fafc', '#e2e8f0', '#94a3b8', z.accent);
+
+      const holoFloat = Math.sin(timeTick * 2.5 + z.x) * 3.5;
+      draw3DCylinder(0, roofTopY - 14 + holoFloat, 18, 18, 5, '#ffffff', z.topColor, z.rightColor, '#fbbf24');
 
       ctx.font = '18px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(z.icon, 0, -42);
+      ctx.fillText(z.icon, 0, roofTopY - 19 + holoFloat);
 
-      ctx.fillStyle = 'rgba(10, 25, 47, 0.92)';
-      roundRectPath(ctx, -74, 32, 148, 32, 16);
+      // 7. 建築前方 3D 立體懸浮名牌
+      ctx.fillStyle = 'rgba(7, 18, 36, 0.94)';
+      roundRectPath(ctx, -78, 18, 156, 34, 16);
       ctx.fill();
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 2;
       ctx.strokeStyle = (isHovered || isSelected) ? '#fbbf24' : z.accent;
       ctx.stroke();
 
-      ctx.font = '800 12px "Noto Sans TC"';
+      ctx.font = '900 12px "Noto Sans TC"';
       ctx.fillStyle = '#ffffff';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillText(z.name, 0, 47);
+      ctx.fillText(z.name, 0, 33);
 
       ctx.font = '700 9.5px "Plus Jakarta Sans", "Noto Sans TC"';
       ctx.fillStyle = '#7dd3fc';
-      ctx.fillText(z.tag, 0, 59);
+      ctx.fillText(z.tag, 0, 46);
 
       ctx.restore();
     }
 
-    function drawChairCenterpiece() {
+    // 繪製中央 3D 立體系主任紀念碑與真實頭像獎座
+    function draw3DChairMonument() {
       ctx.save();
       ctx.translate(chairNPC.x, chairNPC.y);
 
       const isHovered = hoveredObj && hoveredObj.type === 'chair';
-      const floatOffset = Math.sin(timeTick * 1.6) * 2.5;
+      const floatOffset = Math.sin(timeTick * 1.8) * 3;
 
-      ctx.strokeStyle = isHovered ? '#fde047' : 'rgba(251, 191, 36, 0.65)';
-      ctx.lineWidth = isHovered ? 3.5 : 2.5;
-      ctx.beginPath();
-      ctx.ellipse(0, 28, 48, 24, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      // 1. 雙層 3D 八角/圓柱大理石與黃金基座
+      draw3DCylinder(0, 16, 46, 26, 12,
+        '#fde047', '#f59e0b', '#b45309', '#ffffff'
+      );
+      draw3DCylinder(0, 4, 34, 19, 10,
+        '#1e3a8a', '#1d4ed8', '#172554', '#fbbf24'
+      );
 
       ctx.translate(0, floatOffset);
 
-      ctx.fillStyle = '#0f294a';
-      roundRectPath(ctx, -20, 4, 40, 26, 10);
-      ctx.fill();
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
+      // 2. 系主任 3D 立體西裝胸像柱體
+      drawIso3DBlock(0, -6, 36, 24, 24, '#1e3a8a', '#1e40af', '#0f172a', '#fbbf24');
+      // 立體領帶
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
-      ctx.moveTo(0, 6);
-      ctx.lineTo(4, 18);
-      ctx.lineTo(0, 24);
-      ctx.lineTo(-4, 18);
+      ctx.moveTo(0, -24);
+      ctx.lineTo(4, -10);
+      ctx.lineTo(0, -4);
+      ctx.lineTo(-4, -10);
       ctx.closePath();
       ctx.fill();
 
-      // 系主任譚仕煒教授真實頭像圓形大徽章
+      // 3. 3D 厚邊黃金圓盤獎章 (背面厚度層 + 正面譚仕煒系主任真實照片)
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.arc(3, -55, 36, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.save();
       ctx.beginPath();
-      ctx.arc(0, -24, 34, 0, Math.PI * 2);
+      ctx.arc(0, -58, 35, 0, Math.PI * 2);
       ctx.closePath();
       ctx.fillStyle = '#ffffff';
       ctx.fill();
       ctx.clip();
 
       if (chairImg.complete && chairImg.naturalWidth > 0) {
-        ctx.drawImage(chairImg, -34, -58, 68, 78);
+        ctx.drawImage(chairImg, -35, -93, 70, 80);
       }
       ctx.restore();
 
-      ctx.strokeStyle = isHovered ? '#fde047' : '#f59e0b';
-      ctx.lineWidth = isHovered ? 4.5 : 3.5;
+      ctx.strokeStyle = isHovered ? '#fef08a' : '#fbbf24';
+      ctx.lineWidth = isHovered ? 5 : 4;
       ctx.beginPath();
-      ctx.arc(0, -24, 34, 0, Math.PI * 2);
+      ctx.arc(0, -58, 35, 0, Math.PI * 2);
       ctx.stroke();
 
+      // 頭頂 3D 懸浮皇冠導覽膠囊
       ctx.fillStyle = '#fbbf24';
-      roundRectPath(ctx, -66, -80, 132, 20, 10);
+      roundRectPath(ctx, -72, -116, 144, 21, 10);
       ctx.fill();
-      ctx.font = '800 10.5px "Noto Sans TC"';
+      ctx.font = '900 10.5px "Noto Sans TC"';
       ctx.fillStyle = '#0f172a';
       ctx.textAlign = 'center';
-      ctx.fillText('👑 點擊系主任導覽學程', 0, -66);
+      ctx.fillText('👑 點擊系主任：學程與師資', 0, -102);
 
-      ctx.fillStyle = 'rgba(10, 25, 47, 0.95)';
-      roundRectPath(ctx, -68, 32, 136, 22, 11);
+      // 底座名牌
+      ctx.fillStyle = 'rgba(7, 18, 36, 0.96)';
+      roundRectPath(ctx, -70, 22, 140, 23, 11);
       ctx.fill();
       ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.8;
       ctx.stroke();
 
-      ctx.font = '800 11.5px "Noto Sans TC"';
+      ctx.font = '900 11.5px "Noto Sans TC"';
       ctx.fillStyle = '#fde047';
-      ctx.fillText('系主任 譚仕煒 教授', 0, 47);
+      ctx.fillText('系主任 譚仕煒 教授', 0, 38);
 
       ctx.restore();
     }
 
-    function drawSmoothStudent(s) {
+    // 繪製 3D 立體 Voxel/圓柱學生角色
+    function draw3DStudentVoxel(s) {
       ctx.save();
       ctx.translate(s.x, s.y);
 
       const isHovered = hoveredObj && hoveredObj.type === 'student' && hoveredObj.data.id === s.id;
-      const bob = s.isMoving ? Math.abs(Math.sin(s.stepPhase)) * 3 : 0;
+      const bob = s.isMoving ? Math.abs(Math.sin(s.stepPhase)) * 3.5 : 0;
 
-      ctx.fillStyle = 'rgba(0, 10, 25, 0.24)';
+      // 3D 地面陰影
+      ctx.fillStyle = 'rgba(0, 10, 25, 0.32)';
       ctx.beginPath();
-      ctx.ellipse(0, 13, 10, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(2, 5, 12, 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.translate(0, -bob);
 
-      ctx.fillStyle = s.color;
-      roundRectPath(ctx, -9, -3, 18, 16, 6);
+      // 3D 立體雙腿
+      draw3DCylinder(-4, 2, 3, 2, 7, s.darkColor, '#1e293b', '#0f172a');
+      draw3DCylinder(4, 2, 3, 2, 7, s.darkColor, '#1e293b', '#0f172a');
+
+      // 3D 立體圓柱身體与背包厚度
+      drawIso3DBlock(0, -3, 18, 12, 15, s.color, s.color, s.darkColor, '#ffffff');
+
+      // 3D 立體球形頭部 (具立體高光梯度)
+      const headGrad = ctx.createRadialGradient(-3, -25, 2, 0, -22, 10);
+      headGrad.addColorStop(0, '#fffbeb');
+      headGrad.addColorStop(0.6, '#fde68a');
+      headGrad.addColorStop(1, '#d97706');
+      ctx.fillStyle = headGrad;
+      ctx.beginPath();
+      ctx.arc(0, -23, 8.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
 
-      ctx.fillStyle = '#fde68a';
-      ctx.beginPath();
-      ctx.arc(0, -10, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
+      // 眼睛
       ctx.fillStyle = '#0f172a';
       ctx.beginPath();
-      ctx.arc(-2.6, -10.5, 1.2, 0, Math.PI * 2);
-      ctx.arc(2.6, -10.5, 1.2, 0, Math.PI * 2);
+      ctx.arc(-2.8, -23.5, 1.3, 0, Math.PI * 2);
+      ctx.arc(2.8, -23.5, 1.3, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.font = '700 10px "Noto Sans TC"';
+      // 腳下立體名牌
+      ctx.font = '800 10px "Noto Sans TC"';
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#f8fafc';
-      ctx.shadowColor = 'rgba(0,0,0,0.85)';
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.9)';
       ctx.shadowBlur = 4;
-      ctx.fillText(s.name, 0, 25);
+      ctx.fillText(s.name, 0, 17);
       ctx.shadowBlur = 0;
 
-      const nearPlayer = Math.hypot(player.x - s.x, player.y - s.y) < 85;
+      const nearPlayer = Math.hypot(player.x - s.x, player.y - s.y) < 88;
       if (isHovered || nearPlayer) {
         ctx.font = '700 10.5px "Noto Sans TC"';
         const tw = ctx.measureText(s.bubble).width + 18;
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
-        roundRectPath(ctx, -tw / 2, -42, tw, 21, 10);
+        ctx.fillStyle = 'rgba(9, 22, 42, 0.95)';
+        roundRectPath(ctx, -tw / 2, -55, tw, 21, 10);
         ctx.fill();
         ctx.strokeStyle = s.color;
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.6;
         ctx.stroke();
 
         ctx.fillStyle = '#f8fafc';
-        ctx.fillText(s.bubble, 0, -28);
+        ctx.fillText(s.bubble, 0, -41);
       }
 
       ctx.restore();
     }
 
-    function drawPlayerCharacter() {
+    function draw3DPlayerVoxel() {
       ctx.save();
       ctx.translate(player.x, player.y);
 
-      const bob = player.isMoving ? Math.abs(Math.sin(player.stepPhase)) * 3.5 : 0;
+      const bob = player.isMoving ? Math.abs(Math.sin(player.stepPhase)) * 4 : 0;
 
+      // 玩家 3D 科技底座光環
       ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.ellipse(0, 14, 15, 7.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 4, 16, 8, 0, 0, Math.PI * 2);
       ctx.stroke();
 
       ctx.translate(0, -bob);
 
-      ctx.fillStyle = '#0284c7';
-      roundRectPath(ctx, -10, -4, 20, 18, 7);
+      draw3DCylinder(-4, 2, 3.2, 2, 8, '#0369a1', '#0f172a', '#020617');
+      draw3DCylinder(4, 2, 3.2, 2, 8, '#0369a1', '#0f172a', '#020617');
+
+      // 玩家 3D 方塊身體
+      drawIso3DBlock(0, -3, 20, 14, 16, '#38bdf8', '#0284c7', '#0369a1', '#fde047');
+
+      // 3D 立體頭部
+      const headGrad = ctx.createRadialGradient(-3, -27, 2, 0, -24, 10);
+      headGrad.addColorStop(0, '#fff7ed');
+      headGrad.addColorStop(0.6, '#fed7aa');
+      headGrad.addColorStop(1, '#ea580c');
+      ctx.fillStyle = headGrad;
+      ctx.beginPath();
+      ctx.arc(0, -25, 9, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#fde047';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      ctx.fillStyle = '#fed7aa';
-      ctx.beginPath();
-      ctx.arc(0, -12, 8.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      // 3D 立體海大學士帽
+      drawIso3DBlock(0, -33, 22, 16, 3, '#1e293b', '#0f172a', '#020617', '#fbbf24');
 
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.moveTo(0, -25);
-      ctx.lineTo(13, -20);
-      ctx.lineTo(0, -15);
-      ctx.lineTo(-13, -20);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.font = '800 10.5px "Noto Sans TC"';
+      ctx.font = '900 10.5px "Noto Sans TC"';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#7dd3fc';
-      ctx.shadowColor = 'rgba(0,0,0,0.9)';
+      ctx.shadowColor = 'rgba(0,0,0,0.95)';
       ctx.shadowBlur = 4;
-      ctx.fillText('你 (海大電機生)', 0, 27);
+      ctx.fillText('🎮 你 (海大電機生)', 0, 19);
       ctx.shadowBlur = 0;
 
       ctx.restore();
     }
 
     /*************************************************************************
-     * 5. 抽屜、語音導覽、137學分試算器與先修關聯圖邏輯
+     * 6. 抽屜面板（同時顯示該區課程 + 對應領域師資與實驗室！）
      *************************************************************************/
     function renderQuickZones() {
       const box = document.getElementById('quickZonesList');
@@ -1209,7 +1836,7 @@
           <span class="w-7 h-7 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-center text-sm group-hover:scale-110 transition">${z.icon}</span>
           <div class="min-w-0 flex-1">
             <div class="text-xs font-bold text-slate-100 group-hover:text-sky-300 truncate">${z.name}</div>
-            <div class="text-[10px] text-slate-400 truncate">${z.courses.length} 門核心課</div>
+            <div class="text-[10px] text-slate-400 truncate">${z.courses.length} 門核心課 · 3D系館</div>
           </div>
         </button>
       `).join('');
@@ -1220,26 +1847,47 @@
       if (!z) return;
       activeZoneId = z.id;
 
-      camera.targetX = z.x + 110;
-      camera.targetY = z.y;
+      camera.targetX = z.x + 115;
+      camera.targetY = z.y - 20;
       camera.targetZoom = 1.12;
       player.targetX = z.x;
-      player.targetY = z.y + 52;
+      player.targetY = z.y + 42;
 
-      ripples.push({ x: z.x, y: z.y, r: 10, maxR: 90, alpha: 1, color: z.accent });
+      ripples.push({ x: z.x, y: z.y, r: 10, maxR: 92, alpha: 1, color: z.accent });
 
       document.getElementById('speakerTitle').textContent = `譚仕煒 教授 ➔ 導覽【${z.name}】`;
       document.getElementById('speakerSubtitle').textContent = z.subtitle;
-      document.getElementById('speakerText').textContent = `「${z.desc}」右側已為您展開本區所有必修與必選修課號明細！`;
+      document.getElementById('speakerText').textContent = `「${z.desc}」右側抽屜已為您展開本館必修科目與對應領域指導教授實驗室！`;
 
       document.getElementById('drawerIcon').textContent = z.icon;
       document.getElementById('drawerTitle').textContent = z.name;
       document.getElementById('drawerSubtitle').textContent = z.subtitle;
 
+      // 找出對應領域的師資實驗室
+      const relatedProfs = NTOU_EE_FACULTY.filter(f => f.group === z.facultyGroup);
+
       document.getElementById('drawerContent').innerHTML = `
         <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-sky-300/20 text-xs text-slate-200 leading-relaxed">
           ${z.desc}
         </div>
+
+        <!-- 對應領域師資與實驗室快捷預覽 -->
+        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-blue-950/80 to-slate-900/90 border border-amber-400/40 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-amber-300">👨‍🔬 關聯領域師資與實驗室（${z.facultyGroup}）</span>
+            <button onclick="openFacultyByGroup('${z.facultyGroup}')" class="text-[11px] text-sky-300 hover:underline font-bold">查看全部師資 ↗</button>
+          </div>
+          <div class="space-y-1.5">
+            ${relatedProfs.map(p => `
+              <div class="p-2 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px]">
+                <div class="font-bold text-white">${p.name} <span class="text-amber-300">${p.title}</span> · <span class="text-sky-300">${p.lab}</span></div>
+                <div class="text-slate-400 truncate">專長：${p.specialty}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="text-xs font-black text-sky-300 pt-1">📚 本館核心必修 / 必選修科目清單</div>
         <div class="space-y-2.5">
           ${z.courses.map(c => `
             <div class="p-3.5 rounded-2xl bg-slate-900/75 hover:bg-slate-900 border border-slate-800 hover:border-sky-400/50 transition">
@@ -1262,6 +1910,11 @@
       drawer.classList.add('translate-x-0', 'opacity-100');
     }
 
+    function openFacultyByGroup(groupName) {
+      openModal('facultyModal');
+      filterFaculty(groupName);
+    }
+
     function closeZoneDrawer() {
       const drawer = document.getElementById('zoneDrawer');
       drawer.classList.add('translate-x-[120%]', 'opacity-0');
@@ -1272,11 +1925,11 @@
     function focusOnChair() {
       closeZoneDrawer();
       camera.targetX = chairNPC.x;
-      camera.targetY = chairNPC.y + 10;
+      camera.targetY = chairNPC.y - 10;
       camera.targetZoom = 1.18;
       player.targetX = 0;
       player.targetY = 58;
-      ripples.push({ x: chairNPC.x, y: chairNPC.y, r: 8, maxR: 95, alpha: 1, color: '#fbbf24' });
+      ripples.push({ x: chairNPC.x, y: chairNPC.y, r: 8, maxR: 98, alpha: 1, color: '#fbbf24' });
       setChairSpeech('welcome');
     }
 
@@ -1311,7 +1964,7 @@
     }
 
     /*************************************************************************
-     * 6. 113學年度 137 畢業學分試算器
+     * 7. 113學年度 137 畢業學分試算器與關聯圖
      *************************************************************************/
     const CREDIT_GROUPS = [
       {
@@ -1431,24 +2084,25 @@
 
     function renderPrereqAndDept() {
       document.getElementById('prereqModalBody').innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           ${SIX_TRACKS.map(t => `
-            <div class="p-4 rounded-2xl bg-slate-900/85 border border-slate-800 hover:border-sky-400 transition space-y-2">
-              <span class="inline-block text-xs font-black px-3 py-1 rounded-full bg-gradient-to-r ${t.color} text-white">${t.group}</span>
-              <div class="text-xs font-bold text-amber-300">六選三必選核心：${t.core} (3學分)</div>
-              <div class="text-xs text-slate-300"><b>先修基礎：</b>${t.prereq}</div>
-              <div class="text-xs text-slate-300"><b>領域進階選修：</b>${t.courses}</div>
+            <div class="p-4 rounded-3xl bg-slate-900/85 border border-slate-800 hover:border-sky-400 transition space-y-2.5 flex flex-col justify-between">
+              <div class="space-y-2">
+                <span class="inline-block text-xs font-black px-3 py-1 rounded-full bg-gradient-to-r ${t.color} text-white">${t.group}</span>
+                <div class="text-xs font-bold text-amber-300">六選三必選核心：${t.core} (3學分)</div>
+                <div class="text-xs text-slate-300"><b>先修基礎：</b>${t.prereq}</div>
+                <div class="text-xs text-sky-200"><b>指導教授群：</b>${t.profs}</div>
+                <div class="text-xs text-emerald-300"><b>研究實驗室：</b>${t.labs}</div>
+                <div class="text-xs text-slate-300"><b>領域進階選修：</b>${t.courses}</div>
+              </div>
+              <button onclick="closeModal('prereqModal'); openFacultyByGroup('${t.group}');"
+                      class="w-full py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/35 border border-sky-400/40 text-sky-200 text-xs font-bold transition">
+                查看該組教授與實驗室詳情 ▸
+              </button>
             </div>
           `).join('')}
         </div>
       `;
-
-      document.getElementById('deptTracksGrid').innerHTML = SIX_TRACKS.map(t => `
-        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
-          <div class="text-xs font-black text-amber-300">${t.group}（六選三核心：${t.core}）</div>
-          <div class="text-xs text-slate-300">${t.courses}</div>
-        </div>
-      `).join('');
     }
 
     function openModal(id) {
@@ -1464,7 +2118,9 @@
       m.classList.remove('flex');
     }
 
+    // 啟動初始化
     renderQuickZones();
+    renderFacultyCards();
     renderCredits();
     renderPrereqAndDept();
     animateLoop();
