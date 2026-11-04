@@ -46,5 +46,6 @@
 * 113 學年度入學生適用之必修科目表與核心課程關聯圖。
 * 實際開課狀況、修課規定及畢業門檻，請以海大電機系辦公室每學期最新公告為準。
 
+
 ---
 *Developed for NTOU EE Curriculum Interactive Project v4.0*
